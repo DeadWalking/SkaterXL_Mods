@@ -1,0 +1,14 @@
+{
+  "Releases": [
+    {
+      "Id": "dwg.SwapAxis",
+      "Version": "0.0.1",
+      "DownloadUrl": ""
+    },
+    {
+      "Id": "dwg.TrickTracker",
+      "Version": "0.0.1",
+      "DownloadUrl": ""
+    }
+  ]
+}
