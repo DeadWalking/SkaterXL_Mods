@@ -1,14 +1,14 @@
 {
   "Releases": [
-    {
-      "Id": "dwg.SwapAxis",
-      "Version": "0.0.1",
-      "DownloadUrl": ""
-    },
-    {
-      "Id": "dwg.TrickTracker",
-      "Version": "0.0.1",
-      "DownloadUrl": ""
-    }
+	{
+		"Id": "dwg.SwapAxis",
+		"Version": "0.0.1",
+		"DownloadUrl": "https://github.com/DeadWalking/SkaterXL_Mods/releases/download/v0.0.1/dwg.SwapAxis.zip"
+	},
+	{
+		"Id": "dwg.TrickTracker",
+		"Version": "0.0.1",
+		"DownloadUrl": "https://github.com/DeadWalking/SkaterXL_Mods/releases/download/v0.0.1/dwg.TrickTracker.zip"
+	}
   ]
 }
