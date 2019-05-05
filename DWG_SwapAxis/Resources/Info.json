@@ -1,0 +1,10 @@
+{
+	"Id": "dwg.SwapAxis",
+	"DisplayName": "DWG SwapAxis",
+	"Author": "DeadWalking",
+	"Version": "0.0.1",
+	"ManagerVersion": "0.15.0",
+	"Requirements": [ "blendermf.XLShredMenu-0.0.4" ],
+	"AssemblyName": "DWG_SwapAxis.dll",
+	"EntryMethod": "DWG_SwapAxis.Main.Load"
+}

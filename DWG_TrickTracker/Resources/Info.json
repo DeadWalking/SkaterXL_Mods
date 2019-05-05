@@ -1,0 +1,10 @@
+{
+	"Id": "dwg.TrickTracker",
+	"DisplayName": "DWG TrickTracker",
+	"Author": "DeadWalking",
+	"Version": "0.0.1",
+	"ManagerVersion": "0.15.0",
+	"Requirements": [ "blendermf.XLShredMenu-0.0.4" ],
+	"AssemblyName": "DWG_TrickTracker.dll",
+	"EntryMethod": "DWG_TrickTracker.Main.Load"
+}
