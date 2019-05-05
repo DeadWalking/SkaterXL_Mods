@@ -49,27 +49,27 @@ namespace DWG_TrickTracker
             {
                 GUI.backgroundColor = Color.black;
                 title = new GUIContent("DWG Trick Tracker");
-                titleStyle = GUI.skin.box;
-                titleStyle.alignment = TextAnchor.MiddleRight;
+                titleStyle = GUI.skin.window;
+                titleStyle.alignment = TextAnchor.UpperRight;
 
                 titleSize = titleStyle.CalcSize(title);
 
                 tricks = new GUIContent(DWG_TrackedTricks);
                 tricksStyle = GUI.skin.box;
-                tricksStyle.alignment = TextAnchor.MiddleCenter;
+                tricksStyle.alignment = TextAnchor.LowerCenter;
 
                 tricksSize = tricksStyle.CalcSize(tricks);
 
                 TrackerRect = new Rect((Screen.width - ((titleSize.x >= tricksSize.x ? titleSize.x : tricksSize.x) + 8)), (Screen.height - ((tricksSize.y * 2) + 8)), ((titleSize.x >= tricksSize.x ? titleSize.x : tricksSize.x) + 4), ((tricksSize.y * 2) + 4));
 
-                TrackerRect = GUI.Window(0, TrackerRect, DWG_TrackerRender, "Trick Tracker");
+                TrackerRect = GUI.Window(0, TrackerRect, DWG_TrackerRender, title, titleStyle);
             }
         }
 
         void DWG_TrackerRender(int windowID)
         {
             TrackerRect.Set((Screen.width - ((titleSize.x >= tricksSize.x ? titleSize.x : tricksSize.x) + 8)), (Screen.height - ((tricksSize.y * 2) + 8)), ((titleSize.x >= tricksSize.x ? titleSize.x : tricksSize.x) + 4), ((tricksSize.y * 2) + 4));
-            GUI.Label(new Rect(4, ((tricksSize.y * 2) - (tricksSize.y + 4)), tricksSize.x, tricksSize.y), tricks);
+            GUI.Label(new Rect(4, ((tricksSize.y * 2) - (tricksSize.y + 2)), ((titleSize.x >= tricksSize.x ? titleSize.x : tricksSize.x) - 4), tricksSize.y), tricks, tricksStyle);
         }
 
 
