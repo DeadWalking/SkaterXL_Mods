@@ -18,8 +18,9 @@ namespace DWG_TrickTracker.Patches {
                 {
                     tmpPopType = "Ollie";
                 }
-                DWG_TrickTracker.DWG_TrackedTricks = DWG_TrickTracker.DWG_TrackedTricks +
-                                                    ((DWG_TrickTracker.DWG_TrackedTricks.Length > 0) ? " + " : "") +
+                DWG_TrickTracker.TrackedTime = Time.time;
+                DWG_TrickTracker.TrackedTricks = DWG_TrickTracker.TrackedTricks +
+                                                    ((DWG_TrickTracker.TrackedTricks.Length > 0) ? " + " : "") +
                                                     (PlayerController.Instance.IsSwitch ? "Switch" : "") +
                                                     tmpPopType;
             }

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using XLShredLib;
 using XLShredLib.UI;
+using TMPro;
 
 namespace DWG_TrickTracker
 {
@@ -8,25 +9,74 @@ namespace DWG_TrickTracker
         ModUIBox modMenuBox;
         ModUILabel modMenuLabelDWG_TrickTracker;
 
-        GUIContent title;
-        GUIStyle titleStyle;
-        Vector2 titleSize;
+        private Rect trackerRect;
+        private bool showTracker;
 
-        GUIContent tricks;
-        GUIStyle tricksStyle;
-        Vector2 tricksSize;
+        private string trackerTitle = "Trick Tracker";
+        private GUIContent title;
+        private GUIStyle titleStyle;
+        private Vector2 titleSize;
 
-        //private Rect trackerRect = new Rect((Screen.width - 516), (Screen.height - 132), 512, 128);
-        private Rect TrackerRect;
-        static public string DWG_TrackedTricks;
-        private bool DWG_ShowTracker;
+        private GUIContent tricks;
+        private GUIStyle tricksStyle;
+        private Vector2 tricksSize;
+
+        static private string trackedTricks;
+        static public string TrackedTricks
+        {
+            get { return trackedTricks; }
+            set { trackedTricks = value; }
+        }
+
+        private float resetTime = 3.0f;
+        static private float trackedTime;
+        static public float TrackedTime
+        {
+            get { return trackedTime; }
+            set { trackedTime = value; }
+        }
+
+        static public Transform boardPos;
+        static public Transform BoardPos
+        {
+            get { return boardPos; }
+            set { boardPos = value; }
+        }
+
+        static public Transform camTransform;
+        static public Transform CamTransform
+        {
+            get { return camTransform; }
+            set { camTransform = value; }
+        }
+
+        //GameObject TextObjectData;
+        //TextMesh TextMeshData;
+        //MeshRenderer TextRendererData;
+        //public Material mat;
+        //public Font font;
+
+        //static public Vector3 TextPos;
+        //private float xzPos, yPos;
+        //private float xzPosAdd, yPosAdd;
 
         public void Start() {
             modMenuBox = ModMenu.Instance.RegisterModMaker("dwg", "DeadWalking");
-            modMenuLabelDWG_TrickTracker = modMenuBox.AddLabel("do-trackTricks", LabelType.Text, "TickTracker Toggle (W)", Side.right, () => Main.enabled, false, (b) => Main.settings.do_TrackTricks = b, 1);
+            modMenuLabelDWG_TrickTracker = modMenuBox.AddLabel("do-trackTricks", LabelType.Text, trackerTitle + " Toggle (W)", Side.right, () => Main.enabled, false, (b) => Main.settings.do_TrackTricks = b, 1);
             Main.settings.do_TrackTricks = false;
-            DWG_ShowTracker = false;
-            DWG_TrackedTricks = "";
+            showTracker = false;
+            trackedTricks = "";
+            trackedTime = Time.time;
+           // TextObjectData = new GameObject(); // GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            //TextObjectData.AddComponent<TextMesh>();
+
+            //TextMeshData = TextObjectData.GetComponent<TextMesh>();
+            //TextRendererData = TextObjectData.AddComponent<MeshRenderer>();
+        }
+
+        private void TimerMess()
+        {
+            ModMenu.Instance.ShowMessage(trackerTitle + " Reset Time (s): " + resetTime);
         }
 
         public void Update() {
@@ -37,41 +87,73 @@ namespace DWG_TrickTracker
 
                     modMenuLabelDWG_TrickTracker.SetToggleValue(Main.settings.do_TrackTricks);
 
-                    DWG_ShowTracker = Main.settings.do_TrackTricks;
-                    ModMenu.Instance.ShowMessage(Main.settings.do_TrackTricks ? "DWG TrickTracker: Enabled" : "DWG TrickTracker: Disabled");
+                    showTracker = Main.settings.do_TrackTricks;
+                    ModMenu.Instance.ShowMessage(Main.settings.do_TrackTricks ? trackerTitle + ": Enabled" : trackerTitle + ": Disabled");
+                    //TextObjectData.SetActive(DWG_ShowTracker);
+                    //TextRendererData.material = mat;
+                });
+                ModMenu.Instance.KeyPress(KeyCode.Alpha1, 0.2f, () =>
+                {
+                    resetTime = resetTime - 1.0f;
+                    TimerMess();
+                });
+                ModMenu.Instance.KeyPress(KeyCode.Alpha2, 0.2f, () =>
+                {
+                    resetTime = resetTime + 1.0f;
+                    TimerMess();
                 });
             }
         }
 
         private void OnGUI()
         {
-            if (Main.settings.do_TrackTricks && DWG_ShowTracker && DWG_TrackedTricks.Length >= 1)
+            if (Main.settings.do_TrackTricks && showTracker)
             {
-                GUI.backgroundColor = Color.black;
-                title = new GUIContent("DWG Trick Tracker");
-                titleStyle = GUI.skin.window;
-                titleStyle.alignment = TextAnchor.UpperRight;
+                if ((Time.time - trackedTime) > resetTime)
+                {
+                    trackedTricks = "";
+                }
 
-                titleSize = titleStyle.CalcSize(title);
+                if (trackedTricks.Length >= 1)
+                {
+                    GUI.backgroundColor = Color.black;
+                    title = new GUIContent(trackerTitle);
+                    titleStyle = GUI.skin.window;
+                    titleStyle.alignment = TextAnchor.UpperRight;
 
-                tricks = new GUIContent(DWG_TrackedTricks);
-                tricksStyle = GUI.skin.box;
-                tricksStyle.alignment = TextAnchor.LowerCenter;
+                    titleSize = titleStyle.CalcSize(title);
 
-                tricksSize = tricksStyle.CalcSize(tricks);
+                    tricks = new GUIContent(trackedTricks);
+                    tricksStyle = GUI.skin.box;
+                    tricksStyle.alignment = TextAnchor.LowerCenter;
 
-                TrackerRect = new Rect((Screen.width - ((titleSize.x >= tricksSize.x ? titleSize.x : tricksSize.x) + 8)), (Screen.height - ((tricksSize.y * 2) + 8)), ((titleSize.x >= tricksSize.x ? titleSize.x : tricksSize.x) + 4), ((tricksSize.y * 2) + 4));
+                    tricksSize = tricksStyle.CalcSize(tricks);
 
-                TrackerRect = GUI.Window(0, TrackerRect, DWG_TrackerRender, title, titleStyle);
+                    trackerRect = new Rect((Screen.width - ((titleSize.x >= tricksSize.x ? titleSize.x : tricksSize.x) + 8)), (Screen.height - ((tricksSize.y * 2) + 8)), ((titleSize.x >= tricksSize.x ? titleSize.x : tricksSize.x) + 4), ((tricksSize.y * 2) + 4));
+
+                    trackerRect = GUI.Window(0, trackerRect, DWG_TrackerRender, title, titleStyle);
+
+                    //TextObjectData.transform.position = TextPos;
+                    //TextObjectData.transform.rotation = Quaternion.Euler(0, 0, 0);
+                    //TextObjectData.transform.localScale = new Vector3(1, 1, 1);
+
+                    //TextMeshData = TextObjectData.GetComponent<TextMesh>();
+                    //TextMeshData.alignment = TextAlignment.Center;
+                    //TextMeshData.anchor = TextAnchor.MiddleCenter;
+                    //TextMeshData.color = Color.red;
+                    //TextMeshData.font = font;
+                    //TextMeshData.fontSize = 64;
+                    //TextMeshData.offsetZ = 1;
+                    //TextMeshData.text = "THIS IS A TEST!!!!!!!!!";
+                }
             }
         }
 
         void DWG_TrackerRender(int windowID)
         {
-            TrackerRect.Set((Screen.width - ((titleSize.x >= tricksSize.x ? titleSize.x : tricksSize.x) + 8)), (Screen.height - ((tricksSize.y * 2) + 8)), ((titleSize.x >= tricksSize.x ? titleSize.x : tricksSize.x) + 4), ((tricksSize.y * 2) + 4));
+            trackerRect.Set((Screen.width - ((titleSize.x >= tricksSize.x ? titleSize.x : tricksSize.x) + 8)), (Screen.height - ((tricksSize.y * 2) + 8)), ((titleSize.x >= tricksSize.x ? titleSize.x : tricksSize.x) + 4), ((tricksSize.y * 2) + 4));
             GUI.Label(new Rect(4, ((tricksSize.y * 2) - (tricksSize.y + 2)), ((titleSize.x >= tricksSize.x ? titleSize.x : tricksSize.x) - 4), tricksSize.y), tricks, tricksStyle);
         }
-
 
         public void OnDestroy() {
             modMenuBox.RemoveLabel("do-trackTricks");
