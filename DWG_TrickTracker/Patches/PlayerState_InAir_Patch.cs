@@ -3,25 +3,38 @@ using UnityEngine;
 
 namespace DWG_TrickTracker.Patches {
     //[HarmonyPatch(typeof(PlayerState_InAir))]
-    //[HarmonyPatch("OnManualUpdate")]
-    //static class PlayerState_InAir_OnManualUpdate_Patch
+    //[HarmonyPatch("FixedUpdate")]
+    //static class PlayerState_InAir_Update_Patch
     //{
     //    [HarmonyPriority(999)]
-    //    static void Postfix()
+    //    static void Postfix(PlayerState_InAir __instance)
     //    {
     //        if (Main.enabled && Main.settings.do_TrackTricks)
     //        {
-    //            string tmpPopType = "Nollie";
-    //            float popId = PlayerController.Instance.animationController.skaterAnim.GetFloat(tmpPopType);
-    //            if (popId == 0f)
+    //            bool trackNorth = (
+    //                               //Ollie
+    //                               ((SettingsManager.Instance.stance == SettingsManager.Stance.Regular) && !PlayerController.Instance.IsSwitch && __instance.LeftFootOff() && !__instance.RightFootOff()) ||
+    //                               ((SettingsManager.Instance.stance == SettingsManager.Stance.Regular) && PlayerController.Instance.IsSwitch && __instance.RightFootOff() && !__instance.LeftFootOff()) ||
+    //                               ((SettingsManager.Instance.stance == SettingsManager.Stance.Goofy) && !PlayerController.Instance.IsSwitch && __instance.RightFootOff() && !__instance.LeftFootOff()) ||
+    //                               ((SettingsManager.Instance.stance == SettingsManager.Stance.Goofy) && PlayerController.Instance.IsSwitch && __instance.LeftFootOff() && !__instance.RightFootOff()) ||
+    //                               //Nollie
+    //                               ((SettingsManager.Instance.stance == SettingsManager.Stance.Regular) && !PlayerController.Instance.IsSwitch && __instance.RightFootOff() && !__instance.LeftFootOff()) ||
+    //                               ((SettingsManager.Instance.stance == SettingsManager.Stance.Regular) && PlayerController.Instance.IsSwitch && __instance.LeftFootOff() && !__instance.RightFootOff()) ||
+    //                               ((SettingsManager.Instance.stance == SettingsManager.Stance.Goofy) && !PlayerController.Instance.IsSwitch && __instance.LeftFootOff() && !__instance.RightFootOff()) ||
+    //                               ((SettingsManager.Instance.stance == SettingsManager.Stance.Goofy) && PlayerController.Instance.IsSwitch && __instance.RightFootOff() && !__instance.LeftFootOff()) ?
+    //                               true : false);
+
+    //            if (trackNorth)
     //            {
-    //                tmpPopType = "Ollie";
-    //            }
-    //            DWG_TrickTracker.trackedTime = Time.time;
-    //            DWG_TrickTracker.DWG_TrackedTricks = DWG_TrickTracker.DWG_TrackedTricks +
-    //                                                ((DWG_TrickTracker.DWG_TrackedTricks.Length > 0) ? " + " : "") +
-    //                                                (PlayerController.Instance.IsSwitch ? "Switch" : "") +
-    //                                                tmpPopType;
+    //                DWG_TrickTracker.TrackedTime = Time.time;
+    //                DWG_TrickTracker.AddTrick("North", false, false);
+    //            };
+
+    //            if (__instance.RightFootOff() && __instance.LeftFootOff())
+    //            {
+    //                DWG_TrickTracker.TrackedTime = Time.time;
+    //                DWG_TrickTracker.AddTrick("Varial", false, false);
+    //            };
     //        }
     //    }
     //}

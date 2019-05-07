@@ -8,36 +8,38 @@ namespace DWG_TrickTracker.Patches {
     static class PlayerState_Pop_Enter_Patch
     {
         [HarmonyPriority(999)]
-        static void Postfix()
+        static void Postfix(PlayerState_Pop __instance)
         {
             if (Main.enabled && Main.settings.do_TrackTricks)
             {
-                string tmpPopType = "Nollie";
-                float popId = PlayerController.Instance.animationController.skaterAnim.GetFloat(tmpPopType);
-                if (popId == 0f)
+                string outPopType = "Nollie";
+                if (PlayerController.Instance.animationController.skaterAnim.GetFloat(outPopType) == 0f)
                 {
-                    tmpPopType = "Ollie";
-                }
+                    outPopType = "Ollie";
+                };
+
                 DWG_TrickTracker.TrackedTime = Time.time;
-                DWG_TrickTracker.TrackedTricks = DWG_TrickTracker.TrackedTricks +
-                                                    ((DWG_TrickTracker.TrackedTricks.Length > 0) ? " + " : "") +
-                                                    (PlayerController.Instance.IsSwitch ? "Switch" : "") +
-                                                    tmpPopType;
-            }
+                DWG_TrickTracker.AddTrick(outPopType, false, false);
+            };
         }
-    }
+    };
 
     //[HarmonyPatch(typeof(PlayerState_Pop))]
     //[HarmonyPatch("KickAdd")]
     //static class PlayerState_Pop_KickAdd_Patch
     //{
-    //    static void Postfix(PlayerState_Pop __instance, ref float ____kickAddSoFar)
+    //    static float testRot = 0f;
+    //    static float testKick = 0f;
+    //    static void Postfix(PlayerState_Pop __instance, ref float ____popVel, ref float ____kickAddSoFar)
     //    {
     //        if (Main.enabled && Main.settings.do_TrackTricks)
     //        {
-    //            DWG_TrickTracker.DWG_TrackedTricks = DWG_TrickTracker.DWG_TrackedTricks +
-    //                                                 ((DWG_TrickTracker.DWG_TrackedTricks.Length > 0) ? " + " : "") +
-    //                                                 "Board Rotation " + ____kickAddSoFar;
+    //            testRot = testRot + Mathf.Clamp(Mathf.Abs(____popVel) / 5f, -0.7f, 0.7f);
+    //            testKick = testKick + ____kickAddSoFar;
+    //            DWG_TrickTracker.AddTrick((testRot + " Board Rotation " + testKick), false, false);
+
+    //            if (testRot >= 720) { testRot = 0f; };
+    //            if (testKick >= 720) { testKick = 0f; };
     //        }
     //    }
     //}

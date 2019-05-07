@@ -4,7 +4,7 @@ using UnityEngine;
 namespace DWG_TrickTracker.Patches {
     //[HarmonyPatch(typeof(PlayerState_Released))]
     //[HarmonyPatch("Enter")]
-    //static class PlayerState_Released_OnBrakeHeld_Patch
+    //static class PlayerState_Released_Enter_Patch
     //{
     //    [HarmonyPriority(999)]
     //    static void Postfix()

@@ -2,17 +2,18 @@
 using XLShredLib;
 using XLShredLib.UI;
 using TMPro;
+using System.Collections.Generic;
 
 namespace DWG_TrickTracker
 {
     class DWG_TrickTracker : MonoBehaviour {
         ModUIBox modMenuBox;
-        ModUILabel modMenuLabelDWG_TrickTracker;
+        ModUILabel modMenuLabel;
 
         private Rect trackerRect;
         private bool showTracker;
+        private readonly string trackerTitle = "Trick Tracker";
 
-        private string trackerTitle = "Trick Tracker";
         private GUIContent title;
         private GUIStyle titleStyle;
         private Vector2 titleSize;
@@ -21,7 +22,14 @@ namespace DWG_TrickTracker
         private GUIStyle tricksStyle;
         private Vector2 tricksSize;
 
-        static private string trackedTricks;
+        static public bool trackBail;
+        static public bool TrackBail
+        {
+            get { return trackBail; }
+            set { trackBail = value; }
+        }
+
+        static public string trackedTricks;
         static public string TrackedTricks
         {
             get { return trackedTricks; }
@@ -36,20 +44,6 @@ namespace DWG_TrickTracker
             set { trackedTime = value; }
         }
 
-        static public Transform boardPos;
-        static public Transform BoardPos
-        {
-            get { return boardPos; }
-            set { boardPos = value; }
-        }
-
-        static public Transform camTransform;
-        static public Transform CamTransform
-        {
-            get { return camTransform; }
-            set { camTransform = value; }
-        }
-
         //GameObject TextObjectData;
         //TextMesh TextMeshData;
         //MeshRenderer TextRendererData;
@@ -62,21 +56,16 @@ namespace DWG_TrickTracker
 
         public void Start() {
             modMenuBox = ModMenu.Instance.RegisterModMaker("dwg", "DeadWalking");
-            modMenuLabelDWG_TrickTracker = modMenuBox.AddLabel("do-trackTricks", LabelType.Text, trackerTitle + " Toggle (W)", Side.right, () => Main.enabled, false, (b) => Main.settings.do_TrackTricks = b, 1);
+            modMenuLabel = modMenuBox.AddLabel("do-trackTricks", LabelType.Text, trackerTitle + " Toggle (W)", Side.right, () => Main.enabled, false, (b) => Main.settings.do_TrackTricks = b, 1);
             Main.settings.do_TrackTricks = false;
             showTracker = false;
-            trackedTricks = "";
-            trackedTime = Time.time;
-           // TextObjectData = new GameObject(); // GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            TrackedTricks = "";
+            TrackedTime = Time.time;
+            //TextObjectData = new GameObject(); // GameObject.CreatePrimitive(PrimitiveType.Sphere);
             //TextObjectData.AddComponent<TextMesh>();
 
             //TextMeshData = TextObjectData.GetComponent<TextMesh>();
             //TextRendererData = TextObjectData.AddComponent<MeshRenderer>();
-        }
-
-        private void TimerMess()
-        {
-            ModMenu.Instance.ShowMessage(trackerTitle + " Reset Time (s): " + resetTime);
         }
 
         public void Update() {
@@ -85,7 +74,7 @@ namespace DWG_TrickTracker
                 {
                     Main.settings.do_TrackTricks = !Main.settings.do_TrackTricks;
 
-                    modMenuLabelDWG_TrickTracker.SetToggleValue(Main.settings.do_TrackTricks);
+                    modMenuLabel.SetToggleValue(Main.settings.do_TrackTricks);
 
                     showTracker = Main.settings.do_TrackTricks;
                     ModMenu.Instance.ShowMessage(Main.settings.do_TrackTricks ? trackerTitle + ": Enabled" : trackerTitle + ": Disabled");
@@ -109,12 +98,12 @@ namespace DWG_TrickTracker
         {
             if (Main.settings.do_TrackTricks && showTracker)
             {
-                if ((Time.time - trackedTime) > resetTime)
+                if ((Time.time - TrackedTime) > resetTime)
                 {
-                    trackedTricks = "";
+                    TrackedTricks = "";
                 }
 
-                if (trackedTricks.Length >= 1)
+                if (TrackedTricks.Length >= 1)
                 {
                     GUI.backgroundColor = Color.black;
                     title = new GUIContent(trackerTitle);
@@ -123,7 +112,7 @@ namespace DWG_TrickTracker
 
                     titleSize = titleStyle.CalcSize(title);
 
-                    tricks = new GUIContent(trackedTricks);
+                    tricks = new GUIContent(TrackedTricks);
                     tricksStyle = GUI.skin.box;
                     tricksStyle.alignment = TextAnchor.LowerCenter;
 
@@ -131,7 +120,7 @@ namespace DWG_TrickTracker
 
                     trackerRect = new Rect((Screen.width - ((titleSize.x >= tricksSize.x ? titleSize.x : tricksSize.x) + 8)), (Screen.height - ((tricksSize.y * 2) + 8)), ((titleSize.x >= tricksSize.x ? titleSize.x : tricksSize.x) + 4), ((tricksSize.y * 2) + 4));
 
-                    trackerRect = GUI.Window(0, trackerRect, DWG_TrackerRender, title, titleStyle);
+                    trackerRect = GUI.Window(0, trackerRect, TrackerRender, title, titleStyle);
 
                     //TextObjectData.transform.position = TextPos;
                     //TextObjectData.transform.rotation = Quaternion.Euler(0, 0, 0);
@@ -149,15 +138,111 @@ namespace DWG_TrickTracker
             }
         }
 
-        void DWG_TrackerRender(int windowID)
-        {
-            trackerRect.Set((Screen.width - ((titleSize.x >= tricksSize.x ? titleSize.x : tricksSize.x) + 8)), (Screen.height - ((tricksSize.y * 2) + 8)), ((titleSize.x >= tricksSize.x ? titleSize.x : tricksSize.x) + 4), ((tricksSize.y * 2) + 4));
-            GUI.Label(new Rect(4, ((tricksSize.y * 2) - (tricksSize.y + 2)), ((titleSize.x >= tricksSize.x ? titleSize.x : tricksSize.x) - 4), tricksSize.y), tricks, tricksStyle);
-        }
-
         public void OnDestroy() {
             modMenuBox.RemoveLabel("do-trackTricks");
         }
 
+        private void TimerMess()
+        {
+            ModMenu.Instance.ShowMessage(trackerTitle + " Reset Time (s): " + resetTime);
+        }
+
+        private void TrackerRender(int windowID)
+        {
+            trackerRect.Set((Screen.width - ((titleSize.x >= tricksSize.x ? titleSize.x : tricksSize.x) + 16)), (Screen.height - ((tricksSize.y * 2) + 8)), ((titleSize.x >= tricksSize.x ? titleSize.x : tricksSize.x) + 8), ((tricksSize.y * 2) + 4));
+            GUI.Label(new Rect(4, ((tricksSize.y * 2) - (tricksSize.y + 2)), (titleSize.x >= tricksSize.x ? (titleSize.x - 4) : tricksSize.x), tricksSize.y), tricks, tricksStyle);
+        }
+
+        static public void AddTrick(string newTrick, bool isRot, bool isGrind)
+        {
+            TrackedTricks = TrackedTricks +
+                            (((TrackedTricks.Length > 0 && !isRot) ? " + " : "") +
+                            (isRot ? " " : "") +
+                            (PlayerController.Instance.IsSwitch && !isRot && !isGrind ? "Switch" : "") +
+                            newTrick);
+        }
+
+        static public bool LeftIsFront()
+        {
+            return (
+                   ((SettingsManager.Instance.stance == SettingsManager.Stance.Regular) && PlayerController.Instance.IsSwitch) ||
+                   ((SettingsManager.Instance.stance == SettingsManager.Stance.Goofy) && !PlayerController.Instance.IsSwitch)
+                   ) ? true : false;
+        }
+
+        //static public Transform boardPos;
+        //static public Transform BoardPos
+        //{
+        //    get { return boardPos; }
+        //    set { boardPos = value; }
+        //}
+
+        //static public Transform camTransform;
+        //static public Transform CamTransform
+        //{
+        //    get { return camTransform; }
+        //    set { camTransform = value; }
+        //}
+
+        //static private int trackManual;
+        //static public int TrackManual
+        //{
+        //    get { return trackManual; }
+        //    set { trackManual = value; }
+        //}
+
+        static private float trackSkaterRot;
+        static public float TrackSkaterRot
+        {
+            get { return trackSkaterRot; }
+            set { trackSkaterRot = value; }
+        }
+
+        static private string trackBoardRot;
+        static public string TrackBoardRot
+        {
+            get { return trackBoardRot; }
+            set { trackBoardRot = value; }
+        }
+
+        static private string trackTrig;
+        static public string TrackTrig
+        {
+            get { return trackTrig; }
+            set { trackTrig = value; }
+        }
+
+        static public void CheckRot()
+        {
+            string outRot;
+
+            switch (TrackSkaterRot)
+            {
+                case var _ when TrackSkaterRot >= 670:
+                    outRot = "720";
+                    break;
+                case var _ when TrackSkaterRot >= 490:
+                    outRot = "540";
+                    break;
+                case var _ when TrackSkaterRot >= 310:
+                    outRot = "360";
+                    break;
+                case var _ when TrackSkaterRot >= 130:
+                    outRot = "180";
+                    break;
+                default:
+                    outRot = "";
+                    break;
+            };
+
+            TrackSkaterRot = 0f;
+
+            if ((outRot != "" || TrackBoardRot != "") && !TrackBail)
+            {
+                AddTrick(TrackTrig + ((outRot != "") ? outRot : "") + ((TrackBoardRot != "") ? " " + TrackBoardRot : ""), true, false);
+                TrackTrig = "";
+                TrackBoardRot = "";
+            };
+        }
     }
 }

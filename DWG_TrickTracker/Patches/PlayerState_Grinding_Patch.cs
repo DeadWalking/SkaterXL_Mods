@@ -12,11 +12,24 @@ namespace DWG_TrickTracker.Patches {
         {
             if (Main.enabled && Main.settings.do_TrackTricks)
             {
+                DWG_TrickTracker.CheckRot();
                 DWG_TrickTracker.TrackedTime = Time.time;
-                DWG_TrickTracker.TrackedTricks = DWG_TrickTracker.TrackedTricks +
-                                                    ((DWG_TrickTracker.TrackedTricks.Length > 0) ? " + " : "") +
-                                                    PlayerController.Instance.boardController.triggerManager.grindDetection.grindType.ToString();
-            }
+                DWG_TrickTracker.AddTrick(PlayerController.Instance.boardController.triggerManager.grindDetection.grindType.ToString(), false, true);
+            };
         }
-    }
+    };
+
+    [HarmonyPatch(typeof(PlayerState_Grinding))]
+    [HarmonyPatch("Update")]
+    static class PlayerState_Grinding_Update_Patch
+    {
+        [HarmonyPriority(999)]
+        static void Postfix()
+        {
+            if (Main.enabled && Main.settings.do_TrackTricks)
+            {
+                DWG_TrickTracker.TrackedTime = Time.time;
+            };
+        }
+    };
 }

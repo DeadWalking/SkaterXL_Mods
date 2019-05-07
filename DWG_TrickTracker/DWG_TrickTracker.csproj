@@ -94,6 +94,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
+    <Compile Include="Patches\InputController_Patch.cs" />
+    <Compile Include="Patches\PlayerState_Bailed_Patch.cs" />
+    <Compile Include="Patches\Respawn_Patch.cs" />
+    <Compile Include="Patches\SkaterController_Patch.cs" />
     <Compile Include="Patches\BoardController_Patch.cs" />
     <Compile Include="Patches\PlayerState_Grinding_Patch.cs" />
     <Compile Include="Patches\PlayerState_InAir_Patch.cs" />
