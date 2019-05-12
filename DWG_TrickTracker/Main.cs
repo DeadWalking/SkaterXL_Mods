@@ -5,12 +5,15 @@ using UnityModManagerNet;
 using System;
 using XLShredLib;
 
-namespace DWG_TrickTracker
+namespace DWG_TT
 {
     [Serializable]
     public class Settings : UnityModManager.ModSettings {
 
+        public float get_Timer = 3;
         public bool do_TrackTricks = false;
+        public bool grow_Vertical = true;
+        public bool at_TrickLanding = false;
 
         public override void Save(UnityModManager.ModEntry modEntry)
         {
@@ -42,10 +45,10 @@ namespace DWG_TrickTracker
             if (enabled) {
                 harmonyInstance = HarmonyInstance.Create(modId);
                 harmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
-                ModMenu.Instance.gameObject.AddComponent<DWG_TrickTracker>();
+                ModMenu.Instance.gameObject.AddComponent<TT>();
             } else {
                 harmonyInstance.UnpatchAll(harmonyInstance.Id);
-                UnityEngine.Object.Destroy(ModMenu.Instance.gameObject.GetComponent<DWG_TrickTracker>());
+                UnityEngine.Object.Destroy(ModMenu.Instance.gameObject.GetComponent<TT>());
             }
             return true;
         }

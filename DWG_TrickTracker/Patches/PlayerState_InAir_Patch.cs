@@ -1,41 +1,49 @@
 ﻿using Harmony12;
 using UnityEngine;
 
-namespace DWG_TrickTracker.Patches {
-    //[HarmonyPatch(typeof(PlayerState_InAir))]
-    //[HarmonyPatch("FixedUpdate")]
-    //static class PlayerState_InAir_Update_Patch
-    //{
-    //    [HarmonyPriority(999)]
-    //    static void Postfix(PlayerState_InAir __instance)
-    //    {
-    //        if (Main.enabled && Main.settings.do_TrackTricks)
-    //        {
-    //            bool trackNorth = (
-    //                               //Ollie
-    //                               ((SettingsManager.Instance.stance == SettingsManager.Stance.Regular) && !PlayerController.Instance.IsSwitch && __instance.LeftFootOff() && !__instance.RightFootOff()) ||
-    //                               ((SettingsManager.Instance.stance == SettingsManager.Stance.Regular) && PlayerController.Instance.IsSwitch && __instance.RightFootOff() && !__instance.LeftFootOff()) ||
-    //                               ((SettingsManager.Instance.stance == SettingsManager.Stance.Goofy) && !PlayerController.Instance.IsSwitch && __instance.RightFootOff() && !__instance.LeftFootOff()) ||
-    //                               ((SettingsManager.Instance.stance == SettingsManager.Stance.Goofy) && PlayerController.Instance.IsSwitch && __instance.LeftFootOff() && !__instance.RightFootOff()) ||
-    //                               //Nollie
-    //                               ((SettingsManager.Instance.stance == SettingsManager.Stance.Regular) && !PlayerController.Instance.IsSwitch && __instance.RightFootOff() && !__instance.LeftFootOff()) ||
-    //                               ((SettingsManager.Instance.stance == SettingsManager.Stance.Regular) && PlayerController.Instance.IsSwitch && __instance.LeftFootOff() && !__instance.RightFootOff()) ||
-    //                               ((SettingsManager.Instance.stance == SettingsManager.Stance.Goofy) && !PlayerController.Instance.IsSwitch && __instance.LeftFootOff() && !__instance.RightFootOff()) ||
-    //                               ((SettingsManager.Instance.stance == SettingsManager.Stance.Goofy) && PlayerController.Instance.IsSwitch && __instance.RightFootOff() && !__instance.LeftFootOff()) ?
-    //                               true : false);
+namespace DWG_TT.Patches {
+    [HarmonyPatch(typeof(PlayerState_InAir))]
+    [HarmonyPatch("Enter")]
+    static class PlayerState_InAir_Enter_Patch
+    {
+        [HarmonyPriority(999)]
+        static void Postfix(PlayerState_InAir __instance)
+        {
+            if (Main.enabled && Main.settings.do_TrackTricks)
+            {
+                TT.CaughtLeft = !__instance.LeftFootOff();
+                TT.CaughtRight = !__instance.RightFootOff();
+            };
+        }
+    };
 
-    //            if (trackNorth)
-    //            {
-    //                DWG_TrickTracker.TrackedTime = Time.time;
-    //                DWG_TrickTracker.AddTrick("North", false, false);
-    //            };
+    [HarmonyPatch(typeof(PlayerState_InAir))]
+    [HarmonyPatch("Update")]
+    static class PlayerState_InAir_Update_Patch
+    {
+        [HarmonyPriority(999)]
+        static void Postfix(PlayerState_InAir __instance)
+        {
+            if (Main.enabled && Main.settings.do_TrackTricks)
+            {
+                TT.CaughtLeft = !__instance.LeftFootOff();
+                TT.CaughtRight = !__instance.RightFootOff();
+            };
+        }
+    };
 
-    //            if (__instance.RightFootOff() && __instance.LeftFootOff())
-    //            {
-    //                DWG_TrickTracker.TrackedTime = Time.time;
-    //                DWG_TrickTracker.AddTrick("Varial", false, false);
-    //            };
-    //        }
-    //    }
-    //}
+    [HarmonyPatch(typeof(PlayerState_InAir))]
+    [HarmonyPatch("Exit")]
+    static class PlayerState_InAir_Exit_Patch
+    {
+        [HarmonyPriority(999)]
+        static void Postfix(PlayerState_InAir __instance)
+        {
+            if (Main.enabled && Main.settings.do_TrackTricks)
+            {
+                TT.CaughtLeft = !__instance.LeftFootOff();
+                TT.CaughtRight = !__instance.RightFootOff();
+            };
+        }
+    };
 }

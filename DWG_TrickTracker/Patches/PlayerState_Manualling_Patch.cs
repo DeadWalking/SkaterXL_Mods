@@ -1,22 +1,35 @@
 ﻿using Harmony12;
 using UnityEngine;
 
-namespace DWG_TrickTracker.Patches {
+// Manual timer using update and exit for reset and check for rotation.
+
+namespace DWG_TT.Patches {
 
     [HarmonyPatch(typeof(PlayerState_Manualling))]
     [HarmonyPatch("Enter")]
     static class PlayerState_Manualling_Enter_Patch
     {
         [HarmonyPriority(999)]
-        static void Postfix(ref int ____manualSign)
+        static void Postfix(int ____manualSign)
         {
             if (Main.enabled && Main.settings.do_TrackTricks)
             {
-                DWG_TrickTracker.CheckRot();
-                DWG_TrickTracker.TrackedTime = Time.time;
-                //DWG_TrickTracker.TrackManual = ((____manualSign < 0) ? 1 : 2);
-                string outManual = ((____manualSign < 0) ? "Manual" : "NoseManual");
-                DWG_TrickTracker.AddTrick(outManual, false, false);
+                TT.PrevState = TT.CrntState;
+                TT.CrntState = TT.TrickState.Man;
+
+                string outMan = "";
+                if (____manualSign < 0)
+                {
+                    outMan = (TT.IsSwitch ? "FakieManny" : "Manual"  );
+                }
+                else
+                {
+
+                    outMan = (TT.IsSwitch ? "SwitchManny" : "NoseManny");
+                }
+                TT.PrevTrick = outMan;
+                TT.TrackedTime = Time.time;
+                TT.CheckRot();
             };
         }
     };
@@ -30,22 +43,27 @@ namespace DWG_TrickTracker.Patches {
         {
             if (Main.enabled && Main.settings.do_TrackTricks)
             {
-                DWG_TrickTracker.TrackedTime = Time.time;
+                TT.TrackedTime = Time.time;
             };
         }
     };
 
-    //[HarmonyPatch(typeof(PlayerState_Manualling))]
-    //[HarmonyPatch("Exit")]
-    //static class PlayerState_Manualling_Exit_Patch
-    //{
-    //    [HarmonyPriority(999)]
-    //    static void Postfix(ref int ____manualSign)
-    //    {
-    //        if (Main.enabled && Main.settings.do_TrackTricks)
-    //        {
-    //            DWG_TrickTracker.TrackManual = 0;
-    //        }
-    //    }
-    //}
+    [HarmonyPatch(typeof(PlayerState_Manualling))]
+    [HarmonyPatch("Exit")]
+    static class PlayerState_Manualling_Exit_Patch
+    {
+        [HarmonyPriority(999)]
+        static void Postfix()
+        {
+            if (Main.enabled && Main.settings.do_TrackTricks)
+            {
+                TT.PrevState = TT.CrntState;
+                TT.CrntState = TT.TrickState.Ride;
+                TT.TrackedTime = Time.time;
+
+                //TT.UpdateBools();
+                TT.UpdateRots(); // Change for TT.CheckRots(); when there is logic for manual tricks and timer
+            }
+        }
+    }
 }

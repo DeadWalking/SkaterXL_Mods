@@ -7,8 +7,8 @@
     <ProjectGuid>{75B64D0F-0148-4DE7-BFF9-4C729EA124CC}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DWG_TrickTracker</RootNamespace>
-    <AssemblyName>DWG_TrickTracker</AssemblyName>
+    <RootNamespace>DWG_TT</RootNamespace>
+    <AssemblyName>DWG_TT</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -93,8 +93,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Patches\PlayerState_Impact_Patch.cs" />
+    <Compile Include="Patches\PlayerState_BeginPop_Patch.cs" />
+    <Compile Include="Patches\PlayerController_Patch.cs" />
+    <Compile Include="SceneTrick.cs" />
     <Compile Include="Main.cs" />
-    <Compile Include="Patches\InputController_Patch.cs" />
     <Compile Include="Patches\PlayerState_Bailed_Patch.cs" />
     <Compile Include="Patches\Respawn_Patch.cs" />
     <Compile Include="Patches\SkaterController_Patch.cs" />

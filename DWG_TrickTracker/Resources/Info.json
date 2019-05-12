@@ -2,11 +2,11 @@
 	"Id": "dwg.TrickTracker",
 	"DisplayName": "DWG TrickTracker",
 	"Author": "DeadWalking",
-	"Version": "0.0.3",
+	"Version": "0.1.0",
 	"ManagerVersion": "0.15.0",
 	"Requirements": [ "blendermf.XLShredMenu-0.0.4" ],
-	"AssemblyName": "DWG_TrickTracker.dll",
-	"EntryMethod": "DWG_TrickTracker.Main.Load",
+	"AssemblyName": "DWG_TT.dll",
+	"EntryMethod": "DWG_TT.Main.Load",
 	"HomePage": "https://github.com/DeadWalking/SkaterXL_Mods",
 	"Repository": "https://raw.githubusercontent.com/DeadWalking/SkaterXL_Mods/master/repository.json"
 }

@@ -1,7 +1,7 @@
 ﻿using Harmony12;
 using UnityEngine;
 
-namespace DWG_TrickTracker.Patches {
+namespace DWG_TT.Patches {
 
     [HarmonyPatch(typeof(Respawn))]
     [HarmonyPatch("DoRespawn")]
@@ -12,11 +12,13 @@ namespace DWG_TrickTracker.Patches {
         {
             if (Main.enabled && Main.settings.do_TrackTricks)
             {
-                DWG_TrickTracker.TrackedTricks = "";
-                DWG_TrickTracker.TrackSkaterRot = 0f;
-                DWG_TrickTracker.TrackBoardRot = "";
-                DWG_TrickTracker.TrackTrig = "";
-                DWG_TrickTracker.TrackBail = false;
+                TT.PrevState = TT.CrntState;
+                TT.CrntState = TT.TrickState.Ride;
+
+                TT.TrackedTricks = "";
+
+                //TT.UpdateBools();
+                TT.UpdateRots();
             };
         }
     };

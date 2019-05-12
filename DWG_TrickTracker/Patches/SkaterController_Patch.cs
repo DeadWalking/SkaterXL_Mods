@@ -2,23 +2,29 @@
 using System;
 using UnityEngine;
 
-namespace DWG_TrickTracker.Patches {
+namespace DWG_TT.Patches {
 
     [HarmonyPatch(typeof(SkaterController))]
-    [HarmonyPatch("InAirRotation")]
-    [HarmonyPatch(new Type[] { typeof(float) })]
-    static class SkaterContorller_InAirRotation_Patch
+    [HarmonyPatch("Update")]
+    static class SkaterContorller_Update_Patch
     {
-        static private Quaternion lastRot;
+        static private Vector3 lastSktrEul;
+        static float lastSktrZPos;
 
         [HarmonyPriority(999)]
         static void Postfix(SkaterController __instance)
         {
             if (Main.enabled && Main.settings.do_TrackTricks)
             {
-                Quaternion crntRot = __instance.skaterRigidbody.rotation;
-                DWG_TrickTracker.TrackSkaterRot = DWG_TrickTracker.TrackSkaterRot + Quaternion.Angle(lastRot, crntRot);
-                lastRot = crntRot;
+                float thisHeight = __instance.skaterTransform.position.y;
+                TT.DidApex = (lastSktrZPos < thisHeight);
+                lastSktrZPos = thisHeight;
+
+                Vector3 crntSktrEul = __instance.skaterTransform.eulerAngles;
+                TT.SktrRot += Mathd.AngleBetween(lastSktrEul.y, crntSktrEul.y);
+                TT.MaxSktrRot = ((Mathf.Abs(TT.MaxSktrRot) < Mathf.Abs(TT.SktrRot)) ? TT.SktrRot : TT.MaxSktrRot);
+
+                lastSktrEul = crntSktrEul;
             };
         }
     };
@@ -32,8 +38,8 @@ namespace DWG_TrickTracker.Patches {
         {
             if (Main.enabled && Main.settings.do_TrackTricks)
             {
-                DWG_TrickTracker.TrackedTime = Time.time;
-                DWG_TrickTracker.AddTrick("Wallie" ,false, false);
+                TT.TrackedTime = Time.time;
+                TT.AddTrick("Wallie");
             };
         }
     };

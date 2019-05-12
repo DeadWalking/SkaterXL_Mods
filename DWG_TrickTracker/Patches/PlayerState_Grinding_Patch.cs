@@ -1,7 +1,9 @@
 ﻿using Harmony12;
 using UnityEngine;
 
-namespace DWG_TrickTracker.Patches {
+// Grind timer using update and exit for reset and check for rotation during grind.
+
+namespace DWG_TT.Patches {
 
     [HarmonyPatch(typeof(PlayerState_Grinding))]
     [HarmonyPatch("Enter")]
@@ -12,9 +14,11 @@ namespace DWG_TrickTracker.Patches {
         {
             if (Main.enabled && Main.settings.do_TrackTricks)
             {
-                DWG_TrickTracker.CheckRot();
-                DWG_TrickTracker.TrackedTime = Time.time;
-                DWG_TrickTracker.AddTrick(PlayerController.Instance.boardController.triggerManager.grindDetection.grindType.ToString(), false, true);
+                TT.PrevState = TT.CrntState;
+                TT.CrntState = TT.TrickState.Grnd;
+
+                TT.TrackedTime = Time.time;
+                TT.CheckRot();
             };
         }
     };
@@ -28,7 +32,26 @@ namespace DWG_TrickTracker.Patches {
         {
             if (Main.enabled && Main.settings.do_TrackTricks)
             {
-                DWG_TrickTracker.TrackedTime = Time.time;
+                TT.TrackedTime = Time.time;
+            };
+        }
+    };
+
+    [HarmonyPatch(typeof(PlayerState_Grinding))]
+    [HarmonyPatch("Exit")]
+    static class PlayerState_Grinding_Exit_Patch
+    {
+        [HarmonyPriority(999)]
+        static void Postfix()
+        {
+            if (Main.enabled && Main.settings.do_TrackTricks)
+            {
+                TT.PrevState = TT.CrntState;
+                TT.CrntState = TT.TrickState.Air;
+                TT.TrackedTime = Time.time;
+
+                //TT.UpdateBools();
+                TT.UpdateRots(); // Change for TT.CheckRots(); when there is logic for Grind tricks and timer
             };
         }
     };
