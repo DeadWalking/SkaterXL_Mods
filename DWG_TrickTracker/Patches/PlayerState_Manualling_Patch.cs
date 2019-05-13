@@ -3,8 +3,8 @@ using UnityEngine;
 
 // Manual timer using update and exit for reset and check for rotation.
 
-namespace DWG_TT.Patches {
-
+namespace DWG_TT.Patches
+{
     [HarmonyPatch(typeof(PlayerState_Manualling))]
     [HarmonyPatch("Enter")]
     static class PlayerState_Manualling_Enter_Patch
@@ -14,7 +14,6 @@ namespace DWG_TT.Patches {
         {
             if (Main.enabled && Main.settings.do_TrackTricks)
             {
-                TT.PrevState = TT.CrntState;
                 TT.CrntState = TT.TrickState.Man;
 
                 string outMan = "";
@@ -28,7 +27,6 @@ namespace DWG_TT.Patches {
                     outMan = (TT.IsSwitch ? "SwitchManny" : "NoseManny");
                 }
                 TT.PrevTrick = outMan;
-                TT.TrackedTime = Time.time;
                 TT.CheckRot();
             };
         }
@@ -57,13 +55,8 @@ namespace DWG_TT.Patches {
         {
             if (Main.enabled && Main.settings.do_TrackTricks)
             {
-                TT.PrevState = TT.CrntState;
                 TT.CrntState = TT.TrickState.Ride;
-                TT.TrackedTime = Time.time;
-
-                //TT.UpdateBools();
-                TT.UpdateRots(); // Change for TT.CheckRots(); when there is logic for manual tricks and timer
-            }
+            };
         }
-    }
+    };
 }

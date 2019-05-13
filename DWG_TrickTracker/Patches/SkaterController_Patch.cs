@@ -2,8 +2,8 @@
 using System;
 using UnityEngine;
 
-namespace DWG_TT.Patches {
-
+namespace DWG_TT.Patches
+{
     [HarmonyPatch(typeof(SkaterController))]
     [HarmonyPatch("Update")]
     static class SkaterContorller_Update_Patch
@@ -38,7 +38,6 @@ namespace DWG_TT.Patches {
         {
             if (Main.enabled && Main.settings.do_TrackTricks)
             {
-                TT.TrackedTime = Time.time;
                 TT.AddTrick("Wallie");
             };
         }

@@ -2,11 +2,11 @@
 using System;
 using UnityEngine;
 
-namespace DWG_TT.Patches {
-
+namespace DWG_TT.Patches
+{
     [HarmonyPatch(typeof(PlayerController))]
     [HarmonyPatch("Update")]
-    static class PlayerController_FixedUpdate_Patch
+    static class PlayerController_Update_Patch
     {
         [HarmonyPriority(999)]
         static void Postfix(PlayerController __instance)

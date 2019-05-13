@@ -1,8 +1,8 @@
 ﻿using Harmony12;
 using UnityEngine;
 
-namespace DWG_TT.Patches {
-
+namespace DWG_TT.Patches
+{
     [HarmonyPatch(typeof(Respawn))]
     [HarmonyPatch("DoRespawn")]
     static class Respawn_DoRespawn_Patch
@@ -12,13 +12,9 @@ namespace DWG_TT.Patches {
         {
             if (Main.enabled && Main.settings.do_TrackTricks)
             {
-                TT.PrevState = TT.CrntState;
                 TT.CrntState = TT.TrickState.Ride;
 
                 TT.TrackedTricks = "";
-
-                //TT.UpdateBools();
-                TT.UpdateRots();
             };
         }
     };

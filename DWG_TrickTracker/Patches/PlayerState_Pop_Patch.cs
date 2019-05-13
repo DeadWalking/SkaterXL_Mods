@@ -1,8 +1,8 @@
 ﻿using Harmony12;
 using UnityEngine;
 
-namespace DWG_TT.Patches {
-
+namespace DWG_TT.Patches
+{
     [HarmonyPatch(typeof(PlayerState_Pop))]
     [HarmonyPatch("Enter")]
     static class PlayerState_Pop_Enter_Patch
@@ -12,6 +12,8 @@ namespace DWG_TT.Patches {
         {
             if (Main.enabled && Main.settings.do_TrackTricks)
             {
+                TT.CrntState = TT.TrickState.Air;
+
                 TT.CaughtLeft = !__instance.LeftFootOff();
                 TT.CaughtRight = !__instance.RightFootOff();
             };

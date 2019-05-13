@@ -11,25 +11,32 @@ namespace DWG_TT
     class TT : MonoBehaviour {
         ModUIBox modMenuBox;
         ModUILabel modLabelTrack;
-        ModUILabel modLabelInfo;
-        ModUILabel modLabelInfoR;
         ModUILabel modLabelAxis;
         ModUILabel modLabelOnLand;
-        ModUILabel modLabelEndL;
-        ModUILabel modLabelEndR;
 
-        static private Dictionary<KeyCode,string> keyNames = new Dictionary<KeyCode, string>();
+        static private Dictionary<KeyCode, string> keyNames = new Dictionary<KeyCode, string>()
+        {
+            { KeyCode.Alpha1 , "1" },
+            { KeyCode.Alpha2 , "2" },
+            { KeyCode.Alpha3 , "3" },
+            { KeyCode.Alpha4 , "4" },
+            { KeyCode.Alpha5 , "5" },
+        };
+
         static private KeyCode ttTimerD = KeyCode.Alpha1;
         static private KeyCode ttTimerU = KeyCode.Alpha2;
         static private KeyCode ttEnable = KeyCode.Alpha3;
         static private KeyCode ttAxis = KeyCode.Alpha4;
         static private KeyCode ttLanding = KeyCode.Alpha5;
 
-        private readonly string trackerTitle = "Trick Tracker";
-        static private string labelInfo = "Lower Timer 0.25(s) (Ctrl+" + ttTimerD.ToString() + ")";
-        static private string labelInfoR = "Raise Timer 0.25(s) (Ctrl+" + ttTimerU.ToString() + ")";
-        static private string trackerAxis = "Extend Dir Toggle (Ctrl+" + ttAxis.ToString() + ") : ";
-        private readonly string lableEnd = "--------------------------------------";
+        static private readonly string trackerTitle = "Trick Tracker";
+        static private string titleWithKey = "";
+        static private string labelInfo = "";
+        static private string labelInfoR = "";
+        static private string trackerGrow = "";
+        static private string tricksAtLanding = "";
+        static private string lableEnd = "";
+        private bool growBool = true;
         private bool lameBool;
 
         private readonly float ttEdge = 4f;
@@ -191,19 +198,21 @@ namespace DWG_TT
             set { didApex = value; }
         }
 
+        static private float grndTime;
+
+        static private float manTime;
+
         private SceneTrick mainTracker;
         static private List<SceneTrick> GuiTricks = new List<SceneTrick>();
 
         static private void SetupKeyNames()
         {
-            keyNames[ttTimerD] = "1";
-            keyNames[ttTimerU] = "2";
-            keyNames[ttEnable] = "3";
-            keyNames[ttAxis] = "4";
-            keyNames[ttLanding] = "5";
-            labelInfo = "Lower Timer 0.25(s) (Ctrl+" + keyNames[ttTimerD] + ")";
-            labelInfoR = "Raise Timer 0.25(s) (Ctrl+" + keyNames[ttTimerU] + ")";
-            trackerAxis = "Extend Dir Toggle (Ctrl+" + keyNames[ttAxis] + ") : " + (Main.settings.grow_Vertical ? "Vertical" : "Horizontal");
+            labelInfo = "    (Ctrl+" + keyNames[ttTimerD] +  ") Lower Timer 0.25(s)";
+            labelInfoR = "    (Ctrl+" + keyNames[ttTimerU] + ") Raise Timer 0.25(s)";
+            titleWithKey = "(Ctrl + " + keyNames[ttEnable] + ") " + trackerTitle + " Toggle";
+            trackerGrow = "(Ctrl+" + keyNames[ttAxis] + ") Extend " + (Main.settings.grow_Vertical ? "Vertical" : "Horizontal");
+            tricksAtLanding = "(Ctrl+" + keyNames[ttLanding] + ") Track Tricks at Landing Point";
+            lableEnd = "------------------------------------------------------";
         }
 
         static public void UpdateRots()
@@ -257,6 +266,9 @@ namespace DWG_TT
             lateFlip = false;
             didApex = false;
 
+            grndTime = Time.time;
+            manTime = Time.time;
+
             UpdateRots();
         }
 
@@ -272,20 +284,30 @@ namespace DWG_TT
 
         private void Start() {
             SetupKeyNames();
-            modMenuBox = ModMenu.Instance.RegisterModMaker("dwg", "DeadWalking");//Main.settings.get_Timer
-            modMenuBox.AddLabel("info-L", LabelType.Text, labelInfo, Side.left, () => Main.enabled, true, (b) => lameBool = b, 0);
-            modMenuBox.AddLabel("info-R", LabelType.Text, labelInfoR, Side.right, () => Main.enabled, true, (b) => lameBool = b, 0);
-            modLabelTrack = modMenuBox.AddLabel("do-trackTricks", LabelType.Toggle, trackerTitle + " Toggle (Ctrl+" + keyNames[ttEnable] + ")", Side.left, () => Main.enabled, Main.settings.do_TrackTricks, (b) => Main.settings.do_TrackTricks = b, 0);
-            modLabelAxis = modMenuBox.AddLabel("grow-vertical", LabelType.Toggle, trackerAxis, Side.left, () => Main.enabled, Main.settings.grow_Vertical, (b) => Main.settings.grow_Vertical = b, 0);
-            //modLabelOnLand = modMenuBox.AddLabel("at-trickLanding", LabelType.Toggle, "Place Tricks at Contact Point (Ctrl+" + keyNames[ttLanding] + ")", Side.right, () => Main.enabled, Main.settings.at_TrickLanding, (b) => Main.settings.at_TrickLanding = b, 0);
-            modMenuBox.AddLabel("filler-A", LabelType.Text, "", Side.right, () => Main.enabled, true, (b) => lameBool = b, 0);
-            //modMenuBox.AddLabel("filler-B", LabelType.Text, "", Side.right, () => Main.enabled, true, (b) => lameBool = b, 0);
-            modMenuBox.AddLabel("end-lineL", LabelType.Text, lableEnd, Side.left, () => Main.enabled, true, (b) => lameBool = b, 0);
-            modMenuBox.AddLabel("end-lineR", LabelType.Text, lableEnd, Side.right, () => Main.enabled, true, (b) => lameBool = b, 0);
+            modMenuBox = ModMenu.Instance.RegisterModMaker("dwg", "DeadWalking");
+                            modMenuBox.AddLabel("top-lineL",        LabelType.Text,     lableEnd,       Side.left,  () => Main.enabled, true,                           (b) => lameBool = b,                     99);
+                            modMenuBox.AddLabel("top-lineR",        LabelType.Text,     lableEnd,       Side.right, () => Main.enabled, true,                           (b) => lameBool = b,                     99);
+                            modMenuBox.AddLabel("info-L",           LabelType.Text,     labelInfo,      Side.left,  () => Main.enabled, true,                           (b) => lameBool = b,                     98);
+                            modMenuBox.AddLabel("info-R",           LabelType.Text,     labelInfoR,     Side.right, () => Main.enabled, true,                           (b) => lameBool = b,                     98);
+            modLabelTrack = modMenuBox.AddLabel("do-trackTricks",   LabelType.Toggle,   titleWithKey,   Side.left,  () => Main.enabled, Main.settings.do_TrackTricks,   (b) => Main.settings.do_TrackTricks = b, 97);
+            modLabelAxis =  modMenuBox.AddLabel("grow-vertical",    LabelType.Toggle,   trackerGrow,    Side.right, () => Main.enabled, Main.settings.grow_Vertical,    (b) => lameBool = b,                                97);
+                            modMenuBox.AddLabel("mid-lineL",        LabelType.Text,     lableEnd,       Side.left,  () => Main.enabled, true,                           (b) => lameBool = b,                     96);
+                            modMenuBox.AddLabel("mid-lineR",        LabelType.Text,     lableEnd,       Side.right, () => Main.enabled, true,                           (b) => lameBool = b,                     96);
+            modLabelOnLand= modMenuBox.AddLabel("at-trickLanding",  LabelType.Toggle,   tricksAtLanding,Side.left,  () => Main.enabled, Main.settings.at_TrickLanding,  (b) => Main.settings.at_TrickLanding = b,95);
+                            modMenuBox.AddLabel("filler-A",         LabelType.Text,     "Experimental", Side.right, () => Main.enabled, true,                           (b) => lameBool = b,                     95);
+                            modMenuBox.AddLabel("end-lineL",        LabelType.Text,     lableEnd,       Side.left,  () => Main.enabled, true,                           (b) => lameBool = b,                     94);
+                            modMenuBox.AddLabel("end-lineR",        LabelType.Text,     lableEnd,       Side.right, () => Main.enabled, true,                           (b) => lameBool = b,                     94);
 
             ResetVars();
             //SetupMainTracker();
         }
+
+        // Playing aruond with manipulating the XLshredMenu Toggle
+        //private Action<bool> SetGrow(object b)
+        //{
+        //    return new Action<bool>(TrueGrow);
+        //}
+        //private void TrueGrow(bool inBool) { Main.settings.grow_Vertical = !Main.settings.grow_Vertical; modLabelTrack.SetToggleValue(true); }
 
         private void Update() {
             if (Main.enabled && Input.GetKey(KeyCode.LeftControl)) {
@@ -299,16 +321,17 @@ namespace DWG_TT
                 ModMenu.Instance.KeyPress(ttAxis, 0.2f, () =>
                 {
                     Main.settings.grow_Vertical = !Main.settings.grow_Vertical;
-                    modLabelAxis.text = trackerTitle + " Extend Dir: " + (Main.settings.grow_Vertical ? "Vertical" : "Horizontal");
-                    ModMenu.Instance.ShowMessage(modLabelAxis.text);
+                    modLabelAxis.text = "(Ctrl+" + keyNames[ttAxis] + ") Extend " + (Main.settings.grow_Vertical ? "Vertical" : "Horizontal");
+                    modLabelTrack.SetToggleValue(true);
+                    ModMenu.Instance.ShowMessage(trackerTitle + " Extend: " + (Main.settings.grow_Vertical ? "Vertical" : "Horizontal"));
                 });
 
-                //ModMenu.Instance.KeyPress(ttLanding, 0.2f, () =>
-                //{
-                //    Main.settings.at_TrickLanding = !Main.settings.at_TrickLanding;
-                //    modLabelOnLand.SetToggleValue(Main.settings.at_TrickLanding);
-                //    ModMenu.Instance.ShowMessage(trackerTitle + " Place Tricks at Contact"  + (Main.settings.at_TrickLanding ? ": Enabled" : ": Disabled"));
-                //});
+                ModMenu.Instance.KeyPress(ttLanding, 0.2f, () =>
+                {
+                    Main.settings.at_TrickLanding = !Main.settings.at_TrickLanding;
+                    modLabelOnLand.SetToggleValue(Main.settings.at_TrickLanding);
+                    ModMenu.Instance.ShowMessage(trackerTitle + " Place Tricks at Contact" + (Main.settings.at_TrickLanding ? ": Enabled" : ": Disabled"));
+                });
 
                 float increment = 0.0f;
                 ModMenu.Instance.KeyPress(ttTimerD, 0.2f, () =>
@@ -330,9 +353,12 @@ namespace DWG_TT
 
         private void OnGUI()
         {
+            // Playing aruond with manipulating the XLshredMenu Toggle
+            //if (!Main.settings.grow_Vertical) { modLabelTrack.SetToggleValue(true); };
+            if ((Time.time - TrackedTime) > Main.settings.get_Timer) { TrackedTricks = ""; };
+
             if (Main.settings.do_TrackTricks)
             {
-                if ((Time.time - TrackedTime) > Main.settings.get_Timer) { TrackedTricks = ""; };
                 //if (mainTracker) { mainTracker.TextMeshData.text = TrackedTricks; };
 
                 if (TrackedTricks.Length < 1) { return; };
@@ -349,23 +375,30 @@ namespace DWG_TT
         private void TrackerRender(int p_windowID) { }
 
         private void OnDestroy() {
+            modMenuBox.RemoveLabel("top-lineL");
+            modMenuBox.RemoveLabel("top-lineR");
             modMenuBox.RemoveLabel("info-L");
             modMenuBox.RemoveLabel("info-R");
             modMenuBox.RemoveLabel("do-trackTricks");
             modMenuBox.RemoveLabel("grow-vertical");
+            modMenuBox.RemoveLabel("mid-lineL");
+            modMenuBox.RemoveLabel("mid-lineR");
             modMenuBox.RemoveLabel("at-trickLanding");
             modMenuBox.RemoveLabel("filler-A");
-            modMenuBox.RemoveLabel("filler-B");
             modMenuBox.RemoveLabel("end-lineL");
             modMenuBox.RemoveLabel("end-lineR");
         }
 
         static public Tuple<Vector3, Quaternion, Vector3> GetWorldTransform()
         {
-            Vector3 placePos = (PlayerController.Instance.cameraController.transform.position + PlayerController.Instance.cameraController.transform.right * 2);
-            placePos = (placePos + PlayerController.Instance.cameraController.transform.forward * 2);
-            Quaternion placeRot = PlayerController.Instance.cameraController.transform.rotation;
+            // 2M to the right and 2m forward from the camera pos
+            //Vector3 placePos = (PlayerController.Instance.cameraController.transform.position + PlayerController.Instance.cameraController.transform.right * 2);
+            //placePos = (placePos + PlayerController.Instance.cameraController.transform.forward * 2);
 
+            // Board estimated contact pos
+            Vector3 placePos = (PlayerController.Instance.boardController.boardTargetPosition.position);
+            Quaternion placeRot = PlayerController.Instance.cameraController.transform.rotation;
+            UnityEngine.
             //dist = Vector3.Distance(cameraPos, textPos);
             Vector3 placeScale = new Vector3(1f, 1f, 1f);
 
@@ -443,8 +476,8 @@ namespace DWG_TT
             bool sameDir = ((brdDir.Length > 0) && (brdDir == sktrDir));
             string sktrBrdDir = ((sameDir || (clampSRot == 0f)) ? "" : " BVar " + clampSRot);
 
-            bool kick = ((brdFlip < 0f) && (clampBFlip >= 360f));
-            bool heel = ((brdFlip > 0f) && (clampBFlip >= 360f));
+            bool kick = ((brdFlip > 0f) && (clampBFlip >= 360f));
+            bool heel = ((brdFlip < 0f) && (clampBFlip >= 360f));
 
             bool shuvit = (!sameDir && (clampBRot >= 180f));
 
@@ -462,6 +495,8 @@ namespace DWG_TT
                     flipType = (((flipType.Length > 0) && (dtqFlip.Length > 0)) ? dtqFlip + " " + flipType : flipType);
                 }
             }
+
+            //AddTrick("FlipType: " + flipType + "  clampBFlip: " + clampBFlip + "  brdFlip: " + brdFlip);
 
             bool hardFlip = (Mathf.Abs(MaxBrdTwk) >= 30f);
 
@@ -549,10 +584,16 @@ namespace DWG_TT
             };
 
             // Plans for Calculating rotations/tweaks while grinding.
-            if (CrntState == TrickState.Grnd) { AddTrick(trickPrefix + ((trickPrefix.Length > 0) ? " " : "") + PlayerController.Instance.boardController.triggerManager.grindDetection.grindType.ToString()); };
+            if (CrntState == TrickState.Grnd && ((Time.time - grndTime) > 0.5f)) {
+                grndTime = Time.time;
+                AddTrick(/*trickPrefix + ((trickPrefix.Length > 0) ? " " : "") + */PlayerController.Instance.boardController.triggerManager.grindDetection.grindType.ToString());
+            };
 
             // Plans for Calculating a couple Manual specific tricks.
-            if (CrntState == TrickState.Man) { AddTrick(PrevTrick); };
+            if (CrntState == TrickState.Man && ((Time.time - manTime) > 0.5f)) {
+                manTime = Time.time;
+                AddTrick(PrevTrick);
+            };
 
             UpdateRots();
         }
@@ -562,11 +603,12 @@ namespace DWG_TT
             if (Main.settings.at_TrickLanding) {
                 GameObject tmpObj = new GameObject();
                 SceneTrick newTrick = tmpObj.AddComponent<SceneTrick>();
-                newTrick.Init(true, p_newTrick);
+                newTrick.Init(false, p_newTrick);
 
                 GuiTricks.Add(newTrick);
             };
 
+            TT.TrackedTime = Time.time;
             TrackedTricks += (((TrackedTricks.Length > 0) ? (Main.settings.grow_Vertical ? " \n " : " + ") : "") + p_newTrick);
         }
     }

@@ -12,12 +12,8 @@ namespace DWG_TT.Patches
         {
             if (Main.enabled && Main.settings.do_TrackTricks)
             {
-                TT.PrevState = TT.CrntState;
                 TT.CrntState = TT.TrickState.Bail;
                 TT.TrackedTricks = ""; // "WahWaahhWaaahhh!";
-
-                //TT.UpdateBools();
-                TT.UpdateRots();
             };
         }
     };
