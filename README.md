@@ -1,5 +1,4 @@
 # SkaterXL_Mods<br/>
-A place for SkaterXL Mods<br/>
 <br/>
 All Mods Require XLShredMenu https://github.com/blendermf/XLShredLoader<br/>
 XLShredMenu ingame Button is F8<br/>
