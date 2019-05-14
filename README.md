@@ -34,4 +34,3 @@ RightStick = +X LeftStick = +Y Right Foot Pop
 RightStick = +Y Right Foot Toeside
 RightStick = -Y Right Foot Heelside
 
-
