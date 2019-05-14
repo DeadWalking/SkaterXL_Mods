@@ -71,6 +71,10 @@
       <HintPath>..\references\UnityEngine.PhysicsModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Games\Steam\steamapps\common\Skater XL\SkaterXL_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>..\references\UnityEngine.UI.dll</HintPath>
       <Private>False</Private>
@@ -89,25 +93,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
-    <Compile Include="Patches\InputController_FixedUpdateTriggers_Patch.cs" />
-    <Compile Include="Patches\StickInput_NoseManualAxis_Patch.cs" />
-    <Compile Include="Patches\StickInput_ManualAxis_Patch.cs" />
-    <Compile Include="Patches\StickInput_SetupDirVel_Patch.cs" />
-    <Compile Include="Patches\StickInput_LastSetupDir_Patch.cs" />
-    <Compile Include="Patches\StickInput_SetupDir_Patch.cs" />
-    <Compile Include="Patches\StickInput_PopDir_Patch.cs" />
-    <Compile Include="Patches\StickInput_ForwardDir_Patch.cs" />
-    <Compile Include="Patches\StickInput_NollieSetupDir_Patch.cs" />
-    <Compile Include="Patches\StickInput_OllieSetupDir_Patch.cs" />
-    <Compile Include="Patches\StickInput_ToeAxisVel_Patch.cs" />
-    <Compile Include="Patches\StickInput_FlipDir_Patch.cs" />
-    <Compile Include="Patches\StickInput_LastToeAxis_Patch.cs" />
-    <Compile Include="Patches\StickInput_ToeAxis_Patch.cs" />
+    <Compile Include="Patches\InputController_Patch.cs" />
+    <Compile Include="Patches\ToeAxis_Patch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DWG_SwapAxis.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Patches\InputThread_InputUpdate_Patch.cs" />
+    <Compile Include="Patches\InputThread_Patch.cs" />
     <None Include="Resources\Info.json" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

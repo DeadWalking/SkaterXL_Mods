@@ -4,7 +4,7 @@ using System;
 namespace DWG_TT
 {
     class SceneTrick : MonoBehaviour {
-        private TextMesh textMeshBG;
+        //private TextMesh textMeshBG;
         private TextMesh textMeshData;
 
         //private MeshRenderer meshRendererData;

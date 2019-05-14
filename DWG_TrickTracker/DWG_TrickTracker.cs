@@ -36,251 +36,68 @@ namespace DWG_TT
         static private string trackerGrow = "";
         static private string tricksAtLanding = "";
         static private string lableEnd = "";
-        private bool growBool = true;
         private bool lameBool;
 
-        private readonly float ttEdge = 4f;
         private readonly float ttBorder = 8f;
-        private bool initTT = false;
+        private bool guiInit = false;
 
-        Rect trackerRect;
         GUIContent tricks;
         GUIStyle tricksStyle;
-        Vector2 tricksPos;
         Vector2 tricksSize;
 
-        public enum TrickState
-        {
-            Ride,
-            Man,
-            Grnd,
-            Air,
-            Bail,
-            Spawn
-        }
+        GUIContent consoleCont;
+        GUIStyle consoleStyle;
+        Vector2 conSize;
+        private bool conEnable = false;
 
-        static private TrickState crntState;
-        static public TrickState CrntState
-        {
-            get { return crntState; }
-            set { crntState = value; }
-        }
-        static private TrickState prevState;
-        static public TrickState PrevState
-        {
-            get { return prevState; }
-            set { prevState = value; }
-        }
+        static private string trackedTricks = "";
+        static private float trackedTime = 0f;
+        static private float lastTrickTime = 0f;
 
-        static private string prevTrick;
-        static public string PrevTrick
-        {
-            get { return prevTrick; }
-            set { prevTrick = value; }
-        }
+        static private string lastState = "";
+        static private string crntState = "";
 
-        static private string trackedTricks;
-        static public string TrackedTricks
-        {
-            get { return trackedTricks; }
-            set { trackedTricks = value; }
-        }
+        static public bool leftCaught = false;
+        static public bool leftPop = false;
+        static public bool leftFrnt = false;
 
-        static private float trackedTime;
-        static public float TrackedTime
-        {
-            get { return trackedTime; }
-            set { trackedTime = value; }
-        }
+        static public bool rightCaught = false;
+        static public bool rightPop = false;
+        static public bool rightFrnt = false;
 
-        static private bool caughtLeft;
-        static public bool CaughtLeft
-        {
-            get { return caughtLeft; }
-            set { caughtLeft = value; }
-        }
+        static public bool isSwitch = false;
+        static private bool wasSwitch = false;
 
-        static private bool caughtRight;
-        static public bool CaughtRight
-        {
-            get { return caughtRight; }
-            set { caughtRight = value; }
-        }
+        static public Vector3 sktrEul;
+        static public Vector3 sktrPos;
+        static private float sktrRotLast = 0f;
+        static private float sktrRotMax = 0f;
+        static private float sktrRot = 0f;
 
-        static private bool stickRight;
-        static public bool StickRight
-        {
-            get { return stickRight; }
-            set { stickRight = value; }
-        }
+        static public Vector3 brdEul;
+        static public Vector3 brdPos;
+        static private float brdRotLast = 0f;
+        static private float brdRotMax = 0f;
+        static private float brdRot = 0f;
+        static private float brdHeightMax = 0f;
+        static private bool brdFwd = false;
 
-        static private bool isSwitch;
-        static public bool IsSwitch
-        {
-            get { return isSwitch; }
-            set { isSwitch = value; }
-        }
+        static private float brdFlipLast = 0f;
+        static private float brdFlipMax = 0f;
+        static private float brdFlip = 0f;
 
-        static private bool wasSwitch;
-        static public bool WasSwitch
-        {
-            get { return wasSwitch; }
-            set { wasSwitch = value; }
-        }
+        static private float brdTwkLast = 0f;
+        static private float brdTwkMax = 0f;
+        static private float brdTwk = 0f;
 
-        static private float lastSktrRot;
-        static private float maxSktrRot;
-        static public float MaxSktrRot
-        {
-            get { return maxSktrRot; }
-            set { maxSktrRot = value; }
-        }
-        static private float sktrRot;
-        static public float SktrRot
-        {
-            get { return sktrRot; }
-            set { sktrRot = value; }
-        }
+        static private bool lateFlip = false;
+        static private bool didApex = false;
 
-        static private float lastBrdRot;
-        static private float maxBrdRot;
-        static public float MaxBrdRot
-        {
-            get { return maxBrdRot; }
-            set { maxBrdRot = value; }
-        }
-        static private float brdRot;
-        static public float BrdRot
-        {
-            get { return brdRot; }
-            set { brdRot = value; }
-        }
+        static private float grndTime = 0f;
 
-        static private float lastBrdFlip;
-        static private float maxBrdFlip;
-        static public float MaxBrdFlip
-        {
-            get { return maxBrdFlip; }
-            set { maxBrdFlip = value; }
-        }
-       static private float brdFlip;
-        static public float BrdFlip
-        {
-            get { return brdFlip; }
-            set { brdFlip = value; }
-        }
+        static private float manTime = 0f;
 
-        static private float lastBrdTwk;
-        static private float maxBrdTwk;
-        static public float MaxBrdTwk
-        {
-            get { return maxBrdTwk; }
-            set { maxBrdTwk = value; }
-        }
-        static private float brdTwk;
-        static public float BrdTwk
-        {
-            get { return brdTwk; }
-            set { brdTwk = value; }
-        }
-
-        static private bool lateFlip;
-        static public bool LateFlip
-        {
-            get { return lateFlip; }
-            set { lateFlip = value; }
-        }
-
-        static private bool didApex;
-        static public bool DidApex
-        {
-            get { return didApex; }
-            set { didApex = value; }
-        }
-
-        static private float grndTime;
-
-        static private float manTime;
-
-        private SceneTrick mainTracker;
         static private List<SceneTrick> GuiTricks = new List<SceneTrick>();
-
-        static private void SetupKeyNames()
-        {
-            labelInfo = "    (Ctrl+" + keyNames[ttTimerD] +  ") Lower Timer 0.25(s)";
-            labelInfoR = "    (Ctrl+" + keyNames[ttTimerU] + ") Raise Timer 0.25(s)";
-            titleWithKey = "(Ctrl + " + keyNames[ttEnable] + ") " + trackerTitle + " Toggle";
-            trackerGrow = "(Ctrl+" + keyNames[ttAxis] + ") Extend " + (Main.settings.grow_Vertical ? "Vertical" : "Horizontal");
-            tricksAtLanding = "(Ctrl+" + keyNames[ttLanding] + ") Track Tricks at Landing Point";
-            lableEnd = "------------------------------------------------------";
-        }
-
-        static public void UpdateRots()
-        {
-           lastSktrRot = sktrRot;
-            maxSktrRot = 0f;
-            sktrRot = 0f;
-
-            lastBrdRot = brdRot;
-            maxBrdRot = 0f;
-            brdRot = 0f;
-
-            lastBrdFlip = brdFlip;
-            maxBrdFlip = 0f;
-            brdFlip = 0f;
-
-            lastBrdTwk = brdTwk;
-            maxBrdTwk = 0f;
-            brdTwk = 0f;
-        }
-
-        static public void UpdateBools()
-        {
-            //caughtLeft = false;
-            //caughtRight = false;
-
-            //stickRight = false;
-            //wasSwitch = isSwitch;
-            //isSwitch = false;
-
-            //lateFlip = false;
-            //didApex = false;
-        }
-
-        private void ResetVars()
-        {
-            crntState = TrickState.Ride;
-            prevState = TrickState.Ride;
-            prevTrick = "";
-
-            trackedTricks = "";
-            trackedTime = Time.time;
-
-            caughtLeft = false;
-            caughtRight = false;
-            stickRight = false;
-
-            wasSwitch = isSwitch;
-            isSwitch = false;
-
-            lateFlip = false;
-            didApex = false;
-
-            grndTime = Time.time;
-            manTime = Time.time;
-
-            UpdateRots();
-        }
-
-        private void SetupMainTracker()
-        {
-            //if (Main.settings.do_TrackTricks && !mainTracker)
-            //{
-            //    GameObject tmpObj = new GameObject();
-            //    mainTracker = tmpObj.AddComponent<SceneTrick>();
-            //    mainTracker.Init(true, "");
-            //}
-        }
 
         private void Start() {
             SetupKeyNames();
@@ -297,20 +114,279 @@ namespace DWG_TT
                             modMenuBox.AddLabel("filler-A",         LabelType.Text,     "Experimental", Side.right, () => Main.enabled, true,                           (b) => lameBool = b,                     95);
                             modMenuBox.AddLabel("end-lineL",        LabelType.Text,     lableEnd,       Side.left,  () => Main.enabled, true,                           (b) => lameBool = b,                     94);
                             modMenuBox.AddLabel("end-lineR",        LabelType.Text,     lableEnd,       Side.right, () => Main.enabled, true,                           (b) => lameBool = b,                     94);
-
-            ResetVars();
-            //SetupMainTracker();
         }
 
-        // Playing aruond with manipulating the XLshredMenu Toggle
-        //private Action<bool> SetGrow(object b)
-        //{
-        //    return new Action<bool>(TrueGrow);
-        //}
-        //private void TrueGrow(bool inBool) { Main.settings.grow_Vertical = !Main.settings.grow_Vertical; modLabelTrack.SetToggleValue(true); }
-
         private void Update() {
-            if (Main.enabled && Input.GetKey(KeyCode.LeftControl)) {
+            crntState = PlayerController.Instance.playerSM.ActiveStateTreeString();
+
+            Vector3 chkSktrPos = PlayerController.Instance.skaterController.skaterTransform.position;
+            Vector3 chkSktrEul = PlayerController.Instance.skaterController.skaterTransform.localEulerAngles;
+
+            Vector3 chkBrdPos = PlayerController.Instance.boardController.boardTransform.position;
+            Vector3 chkBrdEul = PlayerController.Instance.boardController.boardTransform.localEulerAngles;
+
+            if (lastState != crntState)
+            {
+                switch (crntState)
+                {
+                    case "Riding":              // AddTrick("Riding");
+                        break;
+
+                    case "Impact":              // AddTrick("Impact");
+                        CheckRot();
+                        break;
+
+                    case "Manualling":          // AddTrick("Manualling");
+                        CheckRot();
+                        ResetRots();
+                        manTime = Time.time;
+                        break;
+
+                    case "Setup":               // AddTrick("Setup");
+                        //ResetRots();
+                        break;
+
+                    case "BeginPop":            // AddTrick("BeginPop");
+                        ResetRots();
+                        if (lastState == "Pushing") { AddTrick("NoComply"); };
+                        break;
+
+                    case "Pop":                 // AddTrick("Pop");
+                        break;
+
+                    case "Released":            // AddTrick("Released");
+                        if (didApex) { lateFlip = true; }
+                        break;
+
+                    case "InAir":               // AddTrick("InAir");
+                        switch (lastState)
+                        {
+                            case "Riding":
+                            case "Pushing":
+                            case "Setup":
+                            case "Manualling":
+                            case "Grinding":
+                                ResetRots();
+                                break;
+                        };
+                        break;
+
+                    case "Grinding":            // AddTrick("Grinding");
+                        CheckRot();
+                        ResetRots();
+                        grndTime = Time.time;
+                        break;
+
+                    case "Bailed":              // AddTrick("Bailed");
+                        if ((Time.time - lastTrickTime) <= 0.5f) { AddTrick("Bailed"); };
+                        //trackedTricks = "";
+                        break;
+
+                    case "Pushing":             // AddTrick("Pushing");
+                        //trackedTricks = "";
+                        break;
+
+                    case "Braking":             // AddTrick("Braking");
+                        trackedTricks = "";
+                        break;
+                };
+
+                lastState = crntState;
+            };
+
+            switch (crntState)
+            {
+                //case "Impact":
+                //    CheckRot();
+                //    break;
+                case "Manualling":
+                case "Grinding":
+                    if (crntState == "Manualling" || crntState == "Grinding") { trackedTime = Time.time; };
+                    break;
+            };
+            UpdateRots(chkSktrPos, chkSktrEul, chkBrdPos, chkBrdEul);
+            if ((Time.time - trackedTime) > Main.settings.get_Timer) { trackedTricks = ""; };
+            CheckButtons();
+        }
+
+        private void OnGUI()
+        {
+            if (Main.settings.do_TrackTricks)
+            {
+                if (!guiInit)
+                {
+                    GUI.backgroundColor = Color.black;
+                    guiInit = true;
+                    consoleCont = new GUIContent("");
+                    consoleStyle = GUI.skin.box;
+                    tricks = new GUIContent("");
+                    tricksStyle = GUI.skin.box;
+                }
+
+                if (conEnable)
+                {
+
+                    consoleStyle.alignment = TextAnchor.UpperLeft;
+                    consoleCont.text = (
+                                        "SktrEul:          " + sktrEul + "\n" +
+                                        "BrdEul:           " + brdEul + "\n" +
+                                        "SktrRot:          " + sktrRot + "\n" +
+                                        "BrdRot:           " + brdRot + "\n" +
+                                        "BrdFlip:          " + brdFlip + "\n" +
+                                        "Accel:            " + PlayerController.Instance.boardController.acceleration + "\n" +
+                                        "FirstVel:         " + PlayerController.Instance.boardController.firstVel + "\n" +
+                                        "SecVel:           " + PlayerController.Instance.boardController.secondVel + "\n" +
+                                        "ThirdVel:         " + PlayerController.Instance.boardController.thirdVel + "\n" +
+                                        "\n" +
+                                        PlayerController.Instance.playerSM.ActiveStateTreeString() + "\n" +
+                                        "IsBrdBackwards:   " + PlayerController.Instance.boardController.IsBoardBackwards + "\n" +
+                                        "IsSwitch:         " + PlayerController.Instance.IsSwitch + "\n" +
+                                        "PopStick:         " + PlayerController.Instance.inputController.RightStick.IsPopStick
+                                        );
+
+                    conSize = consoleStyle.CalcSize(consoleCont);
+                    GUI.Label(new Rect(4, 4, (Screen.width / 5), conSize.y), consoleCont, consoleStyle);
+                };
+
+                if (trackedTricks.Length == 0) { return; };
+
+                tricksStyle.alignment = TextAnchor.MiddleRight;
+                tricks.text = trackedTricks;
+                tricksSize = tricksStyle.CalcSize(tricks);
+                GUI.Label(new Rect(((Screen.width - ttBorder) - tricksSize.x), ((Screen.height - ttBorder) - tricksSize.y), tricksSize.x, tricksSize.y), tricks, tricksStyle);
+            };
+        }
+        //private void TrackerRender(int p_windowID) { }
+
+        private void OnDestroy() {
+            modMenuBox.RemoveLabel("top-lineL");
+            modMenuBox.RemoveLabel("top-lineR");
+            modMenuBox.RemoveLabel("info-L");
+            modMenuBox.RemoveLabel("info-R");
+            modMenuBox.RemoveLabel("do-trackTricks");
+            modMenuBox.RemoveLabel("grow-vertical");
+            modMenuBox.RemoveLabel("mid-lineL");
+            modMenuBox.RemoveLabel("mid-lineR");
+            modMenuBox.RemoveLabel("at-trickLanding");
+            modMenuBox.RemoveLabel("filler-A");
+            modMenuBox.RemoveLabel("end-lineL");
+            modMenuBox.RemoveLabel("end-lineR");
+        }
+
+        static private void SetupKeyNames()
+        {
+            labelInfo = "    (Ctrl+" + keyNames[ttTimerD] + ") Lower Timer 0.25(s)";
+            labelInfoR = "    (Ctrl+" + keyNames[ttTimerU] + ") Raise Timer 0.25(s)";
+            titleWithKey = "(Ctrl + " + keyNames[ttEnable] + ") " + trackerTitle + " Toggle";
+            trackerGrow = "(Ctrl+" + keyNames[ttAxis] + ") Extend " + (Main.settings.grow_Vertical ? "Vertical" : "Horizontal");
+            tricksAtLanding = "(Ctrl+" + keyNames[ttLanding] + ") Track Tricks at Landing Point";
+            lableEnd = "------------------------------------------------------";
+        }
+
+        static public void ResetRots()
+        {
+            brdFwd = !PlayerController.Instance.boardController.IsBoardBackwards;
+
+            wasSwitch = PlayerController.Instance.IsSwitch;
+
+            leftFrnt = PlayerController.Instance.inputController.LeftStick.IsFrontFoot;
+            leftPop = PlayerController.Instance.inputController.LeftStick.IsPopStick;
+
+            rightFrnt = PlayerController.Instance.inputController.RightStick.IsFrontFoot;
+            rightPop = PlayerController.Instance.inputController.RightStick.IsPopStick;
+
+            sktrRotLast = 0f;
+            sktrRotMax = 0f;
+            sktrRot = 0f;
+
+            brdRotLast = 0f;
+            brdRotMax = 0f;
+            brdRot = 0f;
+            brdHeightMax = 0f;
+
+            brdFlipLast = 0f;
+            brdFlipMax = 0f;
+            brdFlip = 0f;
+
+            brdTwkLast = 0f;
+            brdTwkMax = 0f;
+            brdTwk = 0f;
+
+            didApex = false;
+            lateFlip = false;
+        }
+
+        static public void UpdateRots(Vector3 p_chkSktrPos, Vector3 p_chkSktrEul, Vector3 p_chkBrdPos, Vector3 p_chkBrdEul)
+        {
+            float absZRot = Mathf.Abs(Mathd.AngleBetween(brdEul.x, p_chkBrdEul.x));
+            Vector3 tmpSktrEul = p_chkSktrEul;
+            Vector3 tmpBrdEul = p_chkBrdEul;
+            if (absZRot >= 45)
+            {
+                tmpSktrEul.y = p_chkSktrEul.z;
+                tmpSktrEul.z = p_chkSktrEul.y;
+                tmpBrdEul.y = p_chkBrdEul.z;
+                tmpBrdEul.z = p_chkBrdEul.y;
+            }
+
+            sktrRot += Mathd.AngleBetween(tmpSktrEul.y, sktrEul.y);
+            sktrRotMax = ((Mathf.Abs(sktrRotMax) < Mathf.Abs(sktrRot)) ? sktrRot : sktrRotMax);
+
+            sktrPos = p_chkSktrPos;
+            sktrEul = tmpSktrEul;
+
+
+            if (p_chkBrdPos.y < brdPos.y)
+            {
+                didApex = true;
+                brdHeightMax = brdPos.y;
+            }
+
+            brdTwk += Mathd.AngleBetween(tmpBrdEul.x, brdEul.x);
+            brdTwkMax = ((Mathf.Abs(brdTwkMax) < Mathf.Abs(brdFlip)) ? brdFlip : brdTwkMax);
+            brdRot += Mathd.AngleBetween(tmpBrdEul.y, brdEul.y);
+            brdRotMax = ((Mathf.Abs(brdRotMax) < Mathf.Abs(brdRot)) ? brdRot : brdRotMax);
+            brdFlip += Mathd.AngleBetween(tmpBrdEul.z, brdEul.z);
+            brdFlipMax = ((Mathf.Abs(brdFlipMax) < Mathf.Abs(brdFlip)) ? brdFlip : brdFlipMax);
+
+            brdPos = p_chkBrdPos;
+            brdEul = tmpBrdEul;
+        }
+
+        static public void UpdateBools()
+        {
+            //caughtLeft = false;
+            //caughtRight = false;
+
+            //stickRight = false;
+            //wasSwitch = isSwitch;
+            //isSwitch = false;
+
+            //lateFlip = false;
+            //didApex = false;
+        }
+
+        static public Tuple<Vector3, Quaternion, Vector3> GetWorldTransform()
+        {
+            // 2M to the right and 2m forward from the camera pos
+            //Vector3 placePos = (PlayerController.Instance.cameraController.transform.position + PlayerController.Instance.cameraController.transform.right * 2);
+            //placePos = (placePos + PlayerController.Instance.cameraController.transform.forward * 2);
+
+            // Board estimated contact pos
+            Vector3 placePos = (PlayerController.Instance.boardController.boardTargetPosition.position);
+            Quaternion placeRot = PlayerController.Instance.cameraController.transform.rotation;
+            UnityEngine.
+            //dist = Vector3.Distance(cameraPos, textPos);
+            Vector3 placeScale = new Vector3(1f, 1f, 1f);
+
+            return Tuple.Create(placePos, placeRot, placeScale);
+        }
+
+        private void CheckButtons()
+        {
+            if (Main.enabled && Input.GetKey(KeyCode.LeftControl))
+            {
+                ModMenu.Instance.KeyPress(KeyCode.BackQuote, 0.2f, () => { conEnable = !conEnable; });
                 ModMenu.Instance.KeyPress(ttEnable, 0.2f, () =>
                 {
                     Main.settings.do_TrackTricks = !Main.settings.do_TrackTricks;
@@ -351,59 +427,6 @@ namespace DWG_TT
             }
         }
 
-        private void OnGUI()
-        {
-            // Playing aruond with manipulating the XLshredMenu Toggle
-            //if (!Main.settings.grow_Vertical) { modLabelTrack.SetToggleValue(true); };
-            if ((Time.time - TrackedTime) > Main.settings.get_Timer) { TrackedTricks = ""; };
-
-            if (Main.settings.do_TrackTricks)
-            {
-                //if (mainTracker) { mainTracker.TextMeshData.text = TrackedTricks; };
-
-                if (TrackedTricks.Length < 1) { return; };
-
-                GUI.backgroundColor = Color.black;
-                tricks = new GUIContent(TrackedTricks);
-                tricksStyle = GUI.skin.box;
-                tricksStyle.alignment = TextAnchor.MiddleRight;
-                tricksSize = tricksStyle.CalcSize(tricks);
-
-                GUI.Label(new Rect(((Screen.width - ttBorder) - tricksSize.x), ((Screen.height - ttBorder) - tricksSize.y), tricksSize.x, tricksSize.y), tricks, tricksStyle);
-            };
-        }
-        private void TrackerRender(int p_windowID) { }
-
-        private void OnDestroy() {
-            modMenuBox.RemoveLabel("top-lineL");
-            modMenuBox.RemoveLabel("top-lineR");
-            modMenuBox.RemoveLabel("info-L");
-            modMenuBox.RemoveLabel("info-R");
-            modMenuBox.RemoveLabel("do-trackTricks");
-            modMenuBox.RemoveLabel("grow-vertical");
-            modMenuBox.RemoveLabel("mid-lineL");
-            modMenuBox.RemoveLabel("mid-lineR");
-            modMenuBox.RemoveLabel("at-trickLanding");
-            modMenuBox.RemoveLabel("filler-A");
-            modMenuBox.RemoveLabel("end-lineL");
-            modMenuBox.RemoveLabel("end-lineR");
-        }
-
-        static public Tuple<Vector3, Quaternion, Vector3> GetWorldTransform()
-        {
-            // 2M to the right and 2m forward from the camera pos
-            //Vector3 placePos = (PlayerController.Instance.cameraController.transform.position + PlayerController.Instance.cameraController.transform.right * 2);
-            //placePos = (placePos + PlayerController.Instance.cameraController.transform.forward * 2);
-
-            // Board estimated contact pos
-            Vector3 placePos = (PlayerController.Instance.boardController.boardTargetPosition.position);
-            Quaternion placeRot = PlayerController.Instance.cameraController.transform.rotation;
-            UnityEngine.
-            //dist = Vector3.Distance(cameraPos, textPos);
-            Vector3 placeScale = new Vector3(1f, 1f, 1f);
-
-            return Tuple.Create(placePos, placeRot, placeScale);
-        }
 
         static private float ClampRot(float p_inRot)
         {
@@ -463,7 +486,19 @@ namespace DWG_TT
 
         static public void CheckRot()
         {
-            string trickPrefix = ((!StickRight && WasSwitch) ? "Switch" : (!StickRight && !WasSwitch ? "Nollie" : (StickRight && WasSwitch ? "Fakie" : "")));
+            if ((crntState != "Grinding") && (crntState != "Manualling") && (Time.time - lastTrickTime) < 0.25f) { return; };
+
+            // When the board and skater look like they are rotating the same direction on the Unity world Y axis.
+            // Their local euler y axis rotations are opposite of one another.
+            if (wasSwitch) { brdRot *= -1; } else { sktrRot *= -1; };
+            // When the board has been rotated 180 the kick side becomes the heel side.
+            if (!brdFwd) { brdFlip *= -1; };
+            // Still seems to be some odd behavior when using a Vert. Sometimes, only sometimes, the rotation seems less than expected, and/or it misses a kick/heel flip.
+            // I have a feeling it has to do with the board angle rotating over 45 degrees on the local z axis. At that point the rotation addition stops being on the x axis
+            // and I need to check for that and apply math accordingly.
+
+
+            string trickPrefix = ((!rightPop && wasSwitch) ? "Switch" : (!rightPop && !wasSwitch ? "Nollie" : (rightPop && wasSwitch ? "Fakie" : "")));
 
             float clampSRot = ClampRot(sktrRot);
             float clampBRot = ClampRot(brdRot);
@@ -476,8 +511,8 @@ namespace DWG_TT
             bool sameDir = ((brdDir.Length > 0) && (brdDir == sktrDir));
             string sktrBrdDir = ((sameDir || (clampSRot == 0f)) ? "" : " BVar " + clampSRot);
 
-            bool kick = ((brdFlip > 0f) && (clampBFlip >= 360f));
-            bool heel = ((brdFlip < 0f) && (clampBFlip >= 360f));
+            bool kick = ((brdFlip < 0f) && (clampBFlip >= 360f));
+            bool heel = ((brdFlip > 0f) && (clampBFlip >= 360f));
 
             bool shuvit = (!sameDir && (clampBRot >= 180f));
 
@@ -498,7 +533,7 @@ namespace DWG_TT
 
             //AddTrick("FlipType: " + flipType + "  clampBFlip: " + clampBFlip + "  brdFlip: " + brdFlip);
 
-            bool hardFlip = (Mathf.Abs(MaxBrdTwk) >= 30f);
+            bool hardFlip = (Mathf.Abs(brdTwkMax) >= 30f);
 
             string trickSpin = ((clampBRot >= 180f) ? brdDir + clampBRot.ToString() + (!sameDir ? sktrBrdDir : "") : "");
             string trickFlip = "";
@@ -574,28 +609,29 @@ namespace DWG_TT
             {
                 trickName = (((trickSpin.Length > 0) ? trickSpin + " " : "") + trickName + (((trickFlip.Length > 0) ? " " + trickFlip : "")));
             };
-            //trickPrefix;
 
 
-            //if (clampSRot > 0f || clampBRot > 0f || clampBFlip > 0f && (knownTitle.Length >= 2)) { AddTrick(knownTitle); };
             if (trickName.Length > 0)
             {
                 AddTrick(((trickPrefix.Length > 0) ? trickPrefix + " " : "") + trickName);
             };
 
+             bool crntSwitch = PlayerController.Instance.IsSwitch;
             // Plans for Calculating rotations/tweaks while grinding.
-            if (CrntState == TrickState.Grnd && ((Time.time - grndTime) > 0.5f)) {
-                grndTime = Time.time;
-                AddTrick(/*trickPrefix + ((trickPrefix.Length > 0) ? " " : "") + */PlayerController.Instance.boardController.triggerManager.grindDetection.grindType.ToString());
+            if (crntState == "Grinding" && lastState != "Grinding"/*((Time.time - grndTime) > 0.25f)*/)
+            {
+                AddTrick((crntSwitch ? "Switch " : "") + PlayerController.Instance.boardController.triggerManager.grindDetection.grindType.ToString());
             };
 
             // Plans for Calculating a couple Manual specific tricks.
-            if (CrntState == TrickState.Man && ((Time.time - manTime) > 0.5f)) {
-                manTime = Time.time;
-                AddTrick(PrevTrick);
+            if (crntState == "Manualling" && ((Time.time - manTime) > 0.1f))
+            {
+                bool crntRightPop = PlayerController.Instance.inputController.RightStick.IsPopStick;
+                AddTrick(((!crntRightPop && crntSwitch) ? "Switch " : (!crntRightPop && !crntSwitch ? "Nose " : (crntRightPop && crntSwitch ? "Fakie " : ""))) + "Manual");
             };
 
-            UpdateRots();
+            lastTrickTime = Time.time;
+            ResetRots();
         }
 
         static public void AddTrick(string p_newTrick)
@@ -608,8 +644,8 @@ namespace DWG_TT
                 GuiTricks.Add(newTrick);
             };
 
-            TT.TrackedTime = Time.time;
-            TrackedTricks += (((TrackedTricks.Length > 0) ? (Main.settings.grow_Vertical ? " \n " : " + ") : "") + p_newTrick);
+            trackedTime = Time.time;
+            trackedTricks += (((trackedTricks.Length > 0) ? (Main.settings.grow_Vertical ? " \n " : " + ") : "") + p_newTrick);
         }
     }
 }

@@ -93,21 +93,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Patches\PlayerState_Impact_Patch.cs" />
-    <Compile Include="Patches\PlayerState_BeginPop_Patch.cs" />
-    <Compile Include="Patches\PlayerController_Patch.cs" />
     <Compile Include="SceneTrick.cs" />
     <Compile Include="Main.cs" />
-    <Compile Include="Patches\PlayerState_Bailed_Patch.cs" />
-    <Compile Include="Patches\Respawn_Patch.cs" />
-    <Compile Include="Patches\SkaterController_Patch.cs" />
-    <Compile Include="Patches\BoardController_Patch.cs" />
-    <Compile Include="Patches\PlayerState_Grinding_Patch.cs" />
-    <Compile Include="Patches\PlayerState_InAir_Patch.cs" />
-    <Compile Include="Patches\PlayerState_Manualling_Patch.cs" />
-    <Compile Include="Patches\PlayerState_Pop_Patch.cs" />
-    <Compile Include="Patches\PlayerState_Release_Patch.cs" />
-    <Compile Include="Patches\PlayerState_Riding_Patch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DWG_TrickTracker.cs" />
   </ItemGroup>
