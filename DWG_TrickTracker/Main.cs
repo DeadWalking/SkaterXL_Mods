@@ -10,10 +10,19 @@ namespace DWG_TT
     [Serializable]
     public class Settings : UnityModManager.ModSettings {
 
-        public float get_Timer = 3;
+        public float grnd_Timer = 3;
         public bool do_TrackTricks = false;
         public bool grow_Vertical = true;
         public bool at_TrickLanding = false;
+        public bool show_ghelpers = false;
+        public bool use_custTrigs = false;
+
+        //Most of this is just leftovers from Testing
+        public Vector3 brdOffsets = new Vector3(0.010000000f, 0.010000000f, 0.010000000f);
+        public Vector3 trckOffsets = new Vector3(0.010000000f, 0.010000000f, 0.010000000f);
+        public Vector3 ntOffsets = new Vector3(0.010000000f, 0.010000000f, 0.010000000f);
+        public Vector3 rayDist = new Vector3(0.010000000f, 0.010000000f, 0.010000000f);
+
 
         public override void Save(UnityModManager.ModEntry modEntry)
         {

@@ -1,79 +1,70 @@
 ﻿using UnityEngine;
 using System;
+using TMPro;
 
 namespace DWG_TT
 {
     class SceneTrick : MonoBehaviour {
-        //private TextMesh textMeshBG;
-        private TextMesh textMeshData;
-
-        //private MeshRenderer meshRendererData;
+        //private TextMesh textMeshData;
+        private TextMeshPro tmData;
 
         private float creationTime;
-        private bool isMain;
 
-        public void Init(bool p_isMain, string p_guiTrick)
+        public void Init(string p_guiTrick)
         {
-            isMain = p_isMain;
+            Vector3 placePos = SXLH.BrdTargPos;
+            placePos.y = placePos.y + 0.25f;
+            this.gameObject.transform.position = placePos;
+            this.gameObject.transform.rotation = Quaternion.Euler(SXLH.CamRot.eulerAngles);
+            this.gameObject.transform.localScale = GetDistScale();
 
-            Tuple<Vector3, Quaternion, Vector3> guiTransform;
-            if (isMain)
-            {
-                guiTransform = TT.GetWorldTransform();
-            }
-            else
-            {
-                guiTransform = TT.GetWorldTransform();
-            }
+            this.tmData = this.gameObject.AddComponent<TextMeshPro>();
+            this.tmData.alignment = TextAlignmentOptions.Center;
 
-            gameObject.transform.position = guiTransform.Item1;
-            gameObject.transform.rotation = Quaternion.Euler(guiTransform.Item2.eulerAngles);   // Quaternion.Euler(0, 0, 0);
-            gameObject.transform.localScale = guiTransform.Item3;                               // new Vector3(1, 1, 1);
+            this.tmData.enableAutoSizing = true;
+            this.tmData.enableWordWrapping = false;
+            this.tmData.outlineColor = Color.black;
+            this.tmData.outlineWidth = 1f;
+            //this.tmData.font = Resources.Load("Fonts/78skate_outline SDF", typeof(TMP_FontAsset)) as TMP_FontAsset;
+            //this.tmData.material = Resources.Load("Fonts/78skate_outline SDF", typeof(Material)) as Material;
+            //this.tmData.font = Resources.Load("Fonts & Materials/IMPACT SDF", typeof(TMP_FontAsset)) as TMP_FontAsset;
+            //this.tmData.material = Resources.Load("Fonts & Materials/IMPACT SDF - Drop Shadow", typeof(Material)) as Material;
+            //this.tmData.fontSharedMaterial.SetFloat("_GlowPower", 0.5f);
+            //this.tmData.enableVertexGradient = true;
+            //this.tmData.faceColor = new Color32(255, 128, 128, 255);
+            //this.tmData.renderMode = TextRenderFlags.Render;
+            //this.tmData.UpdateFontAsset();
+            //this.tmData.fontSharedMaterial.SetFloat(ShaderUtilities.ID_GlowPower, 0.5f);
+            //this.tmData.UpdateMeshPadding();
+            //this.tmData.material.EnableKeyword("UNDERLAY_ON");
+            //this.tmData.material.DisableKeyword("UNDERLAY_INNER");
+            this.tmData.fontSize = 64f;
+            this.tmData.color = Color.blue;
+            //this.tmData.isOverlay = true;
+            //this.tmData.UpdateFontAsset();
+            this.tmData.enabled = true;
 
-            textMeshData = gameObject.AddComponent<TextMesh>();
+            this.tmData.text = p_guiTrick;
 
-            textMeshData.alignment = TextAlignment.Right;
-            textMeshData.anchor = TextAnchor.MiddleCenter;
-            textMeshData.color = Color.blue;
-            textMeshData.richText = true;
-            textMeshData.characterSize = 0.01f;
-            textMeshData.fontSize = 64;
-            textMeshData.offsetZ = (isMain ? 0 : 1);
-            textMeshData.text = p_guiTrick;
-
-            creationTime = Time.time;
-
-            //textMeshBG = gameObject.AddComponent<TextMesh>();
-            //textMeshBG.alignment = TextAlignment.Right;
-            //textMeshBG.anchor = TextAnchor.MiddleCenter;
-            //textMeshBG.color = Color.black;
-            //textMeshBG.richText = true;
-            //textMeshBG.characterSize = 0.01f;
-            //textMeshBG.fontSize = 68;
-            //textMeshBG.offsetZ = (isMain ? 0 : 1);
-            //textMeshBG.text = p_guiTrick;
+            this.creationTime = Time.time;
         }
 
-        //FixedUpdate
-        public void FixedUpdate() {
-            if (Main.enabled && Main.settings.do_TrackTricks) {
-
-                Tuple<Vector3, Quaternion, Vector3> guiTransform = TT.GetWorldTransform();
-                if (isMain) { gameObject.transform.position = guiTransform.Item1; };
-
-                gameObject.transform.rotation = Quaternion.Euler(guiTransform.Item2.eulerAngles);
-                gameObject.transform.localScale = guiTransform.Item3;
-
-                //textMeshBG.transform.position = gameObject.transform.forward *1;
-                //textMeshBG.transform.rotation = gameObject.transform.rotation;
-                //textMeshBG.transform.localScale = gameObject.transform.localScale * 1;
-            }
-            if (!isMain && (Time.time - creationTime) >= 10)
+        public void LateUpdate() {
+            if (Main.enabled && Main.settings.do_TrackTricks)
             {
-                //Destroy(textMeshBG.gameObject);
-                //Destroy(textMeshData.gameObject);
+                this.gameObject.transform.rotation = Quaternion.Euler(SXLH.CamRot.eulerAngles);
+                this.gameObject.transform.localScale = this.GetDistScale();
+            }
+            if ((Time.time - this.creationTime) >= 10)
+            {
                 Destroy(this.gameObject);
             }
+        }
+
+        private Vector3 GetDistScale()
+        {
+            Vector3 placeScale = new Vector3(0.02f, 0.02f, 0.02f);
+            return placeScale;
         }
     }
 }

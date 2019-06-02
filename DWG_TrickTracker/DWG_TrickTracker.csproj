@@ -40,6 +40,10 @@
       <HintPath>..\references\Assembly-CSharp-firstpass.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="GUILayoutLib, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Games\Steam\steamapps\common\Skater XL\Mods\kiwi.XLShredReplayEditor\GUILayoutLib.dll</HintPath>
+    </Reference>
     <Reference Include="Rewired_Core">
       <HintPath>..\references\Rewired_Core.dll</HintPath>
       <Private>False</Private>
@@ -91,8 +95,22 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Games\Steam\steamapps\common\Skater XL\Mods\blendermf.XLShredMenu\XLShredLib.dll</HintPath>
     </Reference>
+    <Reference Include="XLShredReplayEditor, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Games\Steam\steamapps\common\Skater XL\Mods\kiwi.XLShredReplayEditor\XLShredReplayEditor.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="RayCastTrigLines.cs" />
+    <Compile Include="SplnToTrigMark.cs" />
+    <Compile Include="GrindTrainer.cs" />
+    <Compile Include="GuiManager.cs" />
+    <Compile Include="PlayerInfo.cs" />
+    <Compile Include="SXL_Helper.cs" />
+    <Compile Include="Reuseable.cs" />
+    <Compile Include="Patches\TriggerManager_Patch.cs" />
+    <Compile Include="GrindManager.cs" />
+    <Compile Include="Datapoints.cs" />
     <Compile Include="SceneTrick.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

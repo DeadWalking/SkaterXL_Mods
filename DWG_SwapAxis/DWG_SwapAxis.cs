@@ -5,16 +5,16 @@ using XInputDotNetPure;
 
 namespace DWG_SwapAxis {
     class DWG_SwapAxis : MonoBehaviour {
-        ModUIBox modMenuBox;
-        ModUILabel modMenuLabelDWG_SwapAxis;
+        static private ModUIBox modMenuBox;
+        static private ModUILabel modMenuLabelDWG_SwapAxis;
 
         //private Rect consoleRect = new Rect(20, 10, 532, 128);
         //static public List<string> DWG_ConMessage = new List<string> { };
         //static public string DWG_ConSingleMessage = "";
 
         static private bool showCon = false;
-        GUIContent consoleCont;
-        GUIStyle consoleStyle;
+        static private GUIContent consoleCont;
+        static private GUIStyle consoleStyle;
 
         static public bool SwapToesAxis = false;
 
@@ -23,7 +23,7 @@ namespace DWG_SwapAxis {
             modMenuLabelDWG_SwapAxis = modMenuBox.AddLabel("do-swapaxis", LabelType.Toggle, "SwapAxis Toggle (Ctrl+Q)", Side.left, () => Main.enabled, Main.settings.do_SwapAxis && Main.enabled, (b) => Main.settings.do_SwapAxis = b, 1);
         }
 
-        static bool initGui = false;
+        static private bool initGui = false;
         private void Update() {
             if (Main.enabled && Input.GetKey(KeyCode.LeftControl))
             {
@@ -68,7 +68,7 @@ namespace DWG_SwapAxis {
             //};
         }
 
-        public void OnDestroy() {
+        private void OnDestroy() {
             modMenuBox.RemoveLabel("do-swapaxis");
         }
 
