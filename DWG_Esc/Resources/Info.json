@@ -1,12 +1,12 @@
 {
-	"Id": "dwg.TrickTracker",
-	"DisplayName": "DWG TrickTracker",
+	"Id": "dwg.SwapAxis",
+	"DisplayName": "DWG SwapAxis",
 	"Author": "DeadWalking",
-	"Version": "0.2.1",
+	"Version": "0.0.2",
 	"ManagerVersion": "0.15.0",
 	"Requirements": [ "blendermf.XLShredMenu-0.0.4" ],
-	"AssemblyName": "DWG_TT.dll",
-	"EntryMethod": "DWG_TT.Main.Load",
+	"AssemblyName": "DWG_SwapAxis.dll",
+	"EntryMethod": "DWG_SwapAxis.Main.Load",
 	"HomePage": "https://github.com/DeadWalking/SkaterXL_Mods",
 	"Repository": "https://raw.githubusercontent.com/DeadWalking/SkaterXL_Mods/master/repository.json"
 }

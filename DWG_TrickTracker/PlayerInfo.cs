@@ -446,12 +446,12 @@ namespace DWG_TT
             switch (this.wasBrdFwd)
             {
                 case true:
-                    kick = (didFlip && this.brdFlipMax < 0f);
-                    heel = (didFlip && this.brdFlipMax > 0f);
+                    kick = (didFlip && (SXLH.IsReg && this.brdFlipMax < 0f) || (SXLH.IsGoofy && this.brdFlipMax > 0f));
+                    heel = (didFlip && (SXLH.IsReg && this.brdFlipMax > 0f) || (SXLH.IsGoofy && this.brdFlipMax < 0f));
                     break;
                 default:
-                    kick = (didFlip && this.brdFlipMax > 0f);
-                    heel = (didFlip && this.brdFlipMax < 0f);
+                    kick = (didFlip && (SXLH.IsReg && this.brdFlipMax > 0f) || (SXLH.IsGoofy && this.brdFlipMax < 0f));
+                    heel = (didFlip && (SXLH.IsReg && this.brdFlipMax < 0f) || (SXLH.IsGoofy && this.brdFlipMax > 0f));
                     break;
 
             }
