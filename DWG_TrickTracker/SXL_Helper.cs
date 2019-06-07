@@ -36,11 +36,13 @@ namespace DWG_TT
         static public bool AllDown { get { return PlayerController.Instance.boardController.AllDown; } }
         static public bool TwoDown { get { return PlayerController.Instance.TwoWheelsDown(); } }
 
+        static public Vector3 SktrEul { get { return PlayerController.Instance.skaterController.skaterTransform.eulerAngles; } }
         static public Vector3 SktrEulLoc { get { return PlayerController.Instance.skaterController.skaterTransform.localEulerAngles; } }
         static public Vector3 SktrPos { get { return PlayerController.Instance.skaterController.skaterTransform.position; } }
 
         static public int BrdLayer { get { return PlayerController.Instance.boardController.gameObject.layer; } }
         static public float BrdSpeed { get { return PlayerController.Instance.boardController.boardRigidbody.velocity.magnitude; } }
+        static public Vector3 BrdEul { get { return PlayerController.Instance.boardController.boardTransform.eulerAngles; } }
         static public Vector3 BrdEulLoc { get { return PlayerController.Instance.boardController.boardTransform.localEulerAngles; } }
         static public Vector3 BrdPos { get { return PlayerController.Instance.boardController.boardTransform.position; } }
         static public Vector3 BrdFwd { get { return PlayerController.Instance.boardController.boardTransform.forward; } }

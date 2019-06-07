@@ -15,7 +15,6 @@ namespace DWG_TT
         public double HghtDiff { get; private set; }
         public bool SameSide { get; private set; }
         public bool ToeFwd { get; private set; }
-        public string TrickArea { get; private set; }
         public string TrickHght { get; private set; }
         public string CrntGrind { get; private set; }
 
@@ -31,9 +30,9 @@ namespace DWG_TT
         private float grndWaitStart;
         private float grndWait;
 
-        private const float grndAnglRot = 0.01f;
+        private double grndAnglRot = 1;
         private const float grndAnglFlip = 0.05f;
-        private float grndAnglTwk = 0.08f;
+        private float grndAnglTwk = 0.01f;
 
         private Vector3 brdStartPos;
         private Vector3 brdRot;
@@ -101,7 +100,7 @@ namespace DWG_TT
             //DebugOut.Log(this.GetType().Name + " OnDestroy");
         }
 
-        public void LateUpdate()
+        public void Update()
         {
             if (!Main.enabled || !Main.settings.do_TrackTricks) { return; }
 
@@ -124,23 +123,23 @@ namespace DWG_TT
                 this.frmTimer = Time.time + Time.deltaTime;
                 if (Input.GetKey(KeyCode.LeftBracket))
                 {
-                    this.grndWaitStart += 0.01f;
-                    ModMenu.Instance.ShowMessage(" GrindWait: " + this.grndWaitStart);
+                    this.grndWaitStart += 0.001f;
+                    ModMenu.Instance.ShowMessage(" grndWaitStart: " + this.grndWaitStart);
                 }
                 if (Input.GetKey(KeyCode.RightBracket))
                 {
-                    this.grndWaitStart -= 0.01f;
-                    ModMenu.Instance.ShowMessage(" GrindWait: " + this.grndWaitStart);
+                    this.grndWaitStart -= 0.001f;
+                    ModMenu.Instance.ShowMessage(" grndWaitStart: " + this.grndWaitStart);
                 }
                 if (Input.GetKey(KeyCode.Semicolon))
                 {
-                    this.grndAnglTwk -= 0.01f;
-                    ModMenu.Instance.ShowMessage(" GrndAnglTwk: " + this.grndAnglTwk);
+                    this.grndAnglRot += 1;
+                    ModMenu.Instance.ShowMessage(" grndAnglRot: " + this.grndAnglRot);
                 }
                 if (Input.GetKey(KeyCode.Quote))
                 {
-                    this.grndAnglTwk -= 0.01f;
-                    ModMenu.Instance.ShowMessage(" GrndAnglTwk: " + this.grndAnglTwk);
+                    this.grndAnglRot -= 1;
+                    ModMenu.Instance.ShowMessage(" grndAnglRot: " + this.grndAnglRot);
                 }
             }
 
@@ -193,24 +192,24 @@ namespace DWG_TT
 
                         if (this.CrntGrind.Length > 0)
                         {
-                            //double chkBrdRot = Math.Abs(Mathd.AngleBetween(this.brdRot.y, SXLH.BrdEulLoc.y));
-                            //double chkBrdFlip = Math.Abs(Mathd.AngleBetween(this.brdRot.z, SXLH.BrdEulLoc.z));
-                            //double chkBrdTwk = Math.Abs(Mathd.AngleBetween(this.brdRot.x, SXLH.BrdEulLoc.x));
+                            double chkBrdRot = (Math.Abs(Mathd.AngleBetween(this.brdRot.y, SXLH.BrdEul.y)) * 100);
+                            //double chkBrdFlip = Math.Abs(Mathd.AngleBetween(this.brdRot.z, SXLH.BrdEul.z));
+                            double chkBrdTwk = Math.Abs(Mathd.AngleBetween(this.brdRot.x, SXLH.BrdEul.x));
                             //DebugOut.Log("chkBrdRot " + chkBrdRot + /*" chkBrdFlip " + chkBrdFlip +*/ " chkBrdTwk " + chkBrdTwk);
 
-                            if (!this.allGrnds.Contains(this.CrntGrind)/* && ((chkBrdRot - grndAnglRot) <= 0f) && *//*((chkBrdFlip - grndAnglFlip) <= 0f) && *//*((chkBrdTwk - this.grndAnglTwk) <= 0f)*/)
+                            if (!this.allGrnds.Contains(this.CrntGrind)/* && (chkBrdRot <= grndAnglRot) *//*&& *//*((chkBrdFlip - grndAnglFlip) <= 0f) && *//*((chkBrdTwk - this.grndAnglTwk) <= 0f)*/)
                             {
                                 this.lastGrind = this.CrntGrind;
                                 this.allGrnds.Add(this.CrntGrind);
                                 this.guiTrck.AddTrick((SXLH.IsSwitch ? "Switch " : "") + (SXLH.FrntSide ? "Fs " : "Bs ") + this.CrntGrind);
-                                this.grndTime = chkTime;
+                                this.grndTime = chkTime + Time.deltaTime;
                                 this.grndWait = 1.0f;
                             }
                         }
                     }
-                    this.brdRot.x = SXLH.BrdEulLoc.x;
-                    this.brdRot.y = SXLH.BrdEulLoc.y;
-                    this.brdRot.z = SXLH.BrdEulLoc.z;
+                    this.brdRot.x = SXLH.BrdEul.x;
+                    this.brdRot.y = SXLH.BrdEul.y;
+                    this.brdRot.z = SXLH.BrdEul.z;
 
                     break;
                 default:
@@ -239,6 +238,7 @@ namespace DWG_TT
             // Anchor // grind	A grind on the front truck, with the tail pointing back, down, and away from the obstacle
             // Hurricane // Fs 180 into FsFeeble A grind starting with an ollie 180, then the back truck (which is now in front) is placed on the obstacle with the nose pointing back, down and towards the obstacle
             // Barley  // grind	An ollie 180 to switch smith grind *Named after Donny Barley
+            // Bennet  // backside 180 to switch back smith
             // BsDarkslide; // Bs entrance upside down board grind
             // FsDarkslide; // Fs entrance upside down board grind
             // Kinked Rail	A rail that is kinked or bent, increasing its difficulty
@@ -279,16 +279,16 @@ namespace DWG_TT
             //              The same as the Hurricane and Sugarcane grinds, except instead of landing into a switch Over - Willy or Willy, land into a switch smith grind.Named after Matt Bennett.[5]
             // Grapefruit grind
             //          It is a frontside 180 to switch backside feeble.
+            // Carousel
+            //          This is a specific Truck - To - Truck Transfer.Think of it as a half Impossible from a 50 / 50 to a switch 50 / 50 – still standing on the back foot. The rider starts from a 50 / 50, "throws" the board over the foot that stands on the truck and jumps up.When the board has done the "half wrap", the rider lands on the truck and catches the nose of the board with the same hand he used to flip it. Marco Sassi became the first person in the world to do a 360 Carousel in 2014, successfully completing a full impossible around the foot to land back in the original 50 - 50 position.To date(July 2015), only two other freestylers have managed to do the same.
 
             // Random code I was going to use as an example for calculating if the board is beyond the plane of the grind edge
-            //    public Transform cam;
+            //public Transform cam;
             //public Vector3 cameraRelative;
-
             //void Start()
             //{
             //    cam = Camera.main.transform;
             //    Vector3 cameraRelative = cam.InverseTransformPoint(transform.position);
-
             //    if (cameraRelative.z > 0)
             //        print("The object is in front of the camera");
             //    else
@@ -296,43 +296,43 @@ namespace DWG_TT
             //}
 
 
-            bool noseTrigg = GrndTrigs.Hit[GrndTrigs.NTrig];
-            bool frntTrckTrigg = GrndTrigs.Hit[GrndTrigs.FTTrig];
+            bool noseTrigg = GrndTrigs.Hit[SXLH.FlipTrigs ? GrndTrigs.NTrig : GrndTrigs.TTrig]; //GrndTrigs.Hit[GrndTrigs.NTrig];
+            bool frntTrckTrigg = GrndTrigs.Hit[SXLH.FlipTrigs ? GrndTrigs.FTTrig : GrndTrigs.BTTrig]; //GrndTrigs.Hit[GrndTrigs.FTTrig];
             bool brdTrigg = GrndTrigs.Hit[GrndTrigs.BrdTrig];
-            bool bckTrckTrigg = GrndTrigs.Hit[GrndTrigs.BTTrig];
-            bool tailTrigg = GrndTrigs.Hit[GrndTrigs.TTrig];
+            bool bckTrckTrigg = GrndTrigs.Hit[SXLH.FlipTrigs ? GrndTrigs.BTTrig : GrndTrigs.FTTrig]; //GrndTrigs.Hit[GrndTrigs.BTTrig];
+            bool tailTrigg = GrndTrigs.Hit[SXLH.FlipTrigs ? GrndTrigs.TTrig : GrndTrigs.NTrig]; //GrndTrigs.Hit[GrndTrigs.TTrig];
 
             double crntFwdAngle = Vector3.SignedAngle(SXLH.BrdDirTwk, SXLH.GrindSplnFwd, -SXLH.GrindSplnRght);
             double crntFwdAngleAbs = Math.Abs(crntFwdAngle);
-            double crntUpAngl = Vector3.Angle(SXLH.BrdDirTwk, SXLH.GrindSplnUp) - 90; //Vector3.Angle(SXLH.BrdDirTwk, SXLH.GrindSplnUp); //Vector3.Angle(SXLH.BrdUp, SXLH.GrindUp);
-            double heightDiff = FNCS.GetHghtDiff(SXLH.BrdPos, SXLH.GrindSplnPos);
+            double crntUpAngl = Math.Abs(Vector3.Angle(SXLH.BrdDirTwk, SXLH.GrindSplnUp) - 90); //Vector3.Angle(SXLH.BrdDirTwk, SXLH.GrindSplnUp); //Vector3.Angle(SXLH.BrdUp, SXLH.GrindUp);
 
-            bool toeIsFwd = Vector3.SignedAngle(Vector3.ProjectOnPlane(SXLH.BrdEdgeFwd, SXLH.GrindUp), SXLH.GrindDir, SXLH.GrindUp) > 0;
-            bool isSameSide = (SXLH.FrntSide && !toeIsFwd) || (!SXLH.FrntSide && toeIsFwd);
-            bool didSwitch = (crntFwdAngleAbs >= 90);
+            //Fucking multiply this bitch that has been a pain in the ass due to floating point math, and not working on anythnig less than 1 and greater than -1 correctly.
+            //Pretty sad I didn't realize it earlier.
+            double heightDiff = (FNCS.GetHghtDiff(GrndTrigs.GetTrigPos(GrndTrigs.BrdTrig), SXLH.GrindSplnPos) * 1000);
 
-            bool aboveEdge = ((heightDiff - 0.080) >= 0);
-            bool flatZone = (!aboveEdge && (heightDiff - 0.04) >= 0);
-            bool belowEdge = (!aboveEdge && !flatZone);
-            if (tailTrigg || bckTrckTrigg) { crntUpAngl *= -1; }
+            bool toeIsFwd = Vector3.SignedAngle(Vector3.ProjectOnPlane(SXLH.BrdEdgeFwd, SXLH.GrindUp), SXLH.GrindDir, SXLH.GrindUp) >= 0;
+            bool isSameSide =
+            (
+                ((noseTrigg || frntTrckTrigg) && ((SXLH.FrntSide && !toeIsFwd) || (!SXLH.FrntSide && toeIsFwd))) ||
+                ((bckTrckTrigg || tailTrigg) && ((SXLH.FrntSide && toeIsFwd) || (!SXLH.FrntSide && !toeIsFwd)))
+            );
 
-            bool fiftyfiftyRotRange = (crntFwdAngleAbs <= 17f || crntFwdAngleAbs >= 163f);
+            bool aboveEdge = (heightDiff >= 35);
+            bool flatZone = ((heightDiff >= -1) && (heightDiff < 35));
+            bool belowEdge = (heightDiff < -1);
+            if (belowEdge) { crntUpAngl *= -1; }
 
-            bool lowEntrRotRange = (crntFwdAngleAbs >= 11f && crntFwdAngleAbs <= 45f);
-            bool lowExitRotRange = (crntFwdAngleAbs >= 135f && crntFwdAngleAbs <= 169f);
+            bool fiftyfiftyRotRange = (crntFwdAngleAbs <= 10 || crntFwdAngleAbs >= 170);
+            bool noseFiveRotRange = (crntFwdAngleAbs <= 35 || crntFwdAngleAbs >= 145);
 
-            bool entrGrndRotRange = (crntFwdAngleAbs >= 34f && crntFwdAngleAbs <= 55f);
-            bool perpGrndRotRange = (crntFwdAngleAbs >= 55f && crntFwdAngleAbs <= 125f);
-            bool exitGrndRotRange = (crntFwdAngleAbs >= 124f && crntFwdAngleAbs <= 145f);
+            bool lowEntrRotRange = (crntFwdAngleAbs > 10 && crntFwdAngleAbs < 50);
+            bool lowExitRotRange = (crntFwdAngleAbs > 130 && crntFwdAngleAbs < 170);
 
-            bool brdLipRotRange = (crntFwdAngleAbs >= 11f && crntFwdAngleAbs <= 169f);
+            bool entrGrndRotRange = (crntFwdAngleAbs > 35 && crntFwdAngleAbs < 50);
+            bool perpGrndRotRange = (crntFwdAngleAbs >= 50 && crntFwdAngleAbs <= 130);
+            bool exitGrndRotRange = (crntFwdAngleAbs > 130 && crntFwdAngleAbs < 145);
 
-            bool highTrick = (aboveEdge && crntUpAngl >= 10f);
-            bool flatTrick = (flatZone && crntUpAngl >= -1f && crntUpAngl <= 10f);
-            bool ntslideTrick = (flatZone && crntUpAngl >= -6f);
-            bool lowTrick = (crntUpAngl <= -1f);
-
-            if (this.guiMan.ConEnable)
+            if (Main.settings.con_Enable)
             {
                 this.EdgeFwdAngl = crntFwdAngle;
                 this.EdgeUpAngl = crntUpAngl;
@@ -340,69 +340,139 @@ namespace DWG_TT
                 this.ToeFwd = toeIsFwd;
                 this.SameSide = isSameSide;
                 this.TrickHght = (belowEdge ? "BelowEdge" : flatZone ? "FlatEdge" : aboveEdge ? "AboveEdge" : "");
-                this.TrickArea = ("\n Low:    " + lowTrick + "\n NTSlide:    " + ntslideTrick + "\n FlatTrick:    " + flatTrick + "\n HighTrick:    " + highTrick + "\n");
             }
 
-            if (flatZone && fiftyfiftyRotRange && frntTrckTrigg && bckTrckTrigg)
+
+            if (aboveEdge && crntUpAngl >= 10)
             {
-                return "FiftyFifty";
-            }
-            else
-            {
-                if ((noseTrigg || frntTrckTrigg && !bckTrckTrigg && !tailTrigg) || (!noseTrigg && !frntTrckTrigg && bckTrckTrigg || tailTrigg))
+                if ((frntTrckTrigg && (!bckTrckTrigg && !tailTrigg)) || ((!noseTrigg && !frntTrckTrigg) && bckTrckTrigg))
                 {
-                    if (crntUpAngl <= 0f)
+                    if (noseFiveRotRange)
                     {
-                        if (lowEntrRotRange)
+                        return (noseTrigg || frntTrckTrigg) ? "Nosegrind" : "FiveO";
+                    }
+                    else if (entrGrndRotRange)
+                    {
+                        return (noseTrigg || frntTrckTrigg ? isSameSide ? "Crook" : "Overcrook" : isSameSide ? "Suski" : "Salad");
+                    }
+                    else if (exitGrndRotRange)
+                    {
+                        return (!SXLH.IsSwitch ? "Switch " : "") + (noseTrigg || frntTrckTrigg ? isSameSide ? "Suski" : "Salad" : isSameSide ? "Crook" : "Overcrook");
+                    }
+                }
+                else if (perpGrndRotRange && (SXLH.TwoDown || ((noseTrigg || frntTrckTrigg) && (!bckTrckTrigg && !tailTrigg)) || ((!noseTrigg && !frntTrckTrigg) && (bckTrckTrigg || tailTrigg))))
+                {
+                    return ((noseTrigg || frntTrckTrigg) ? (isSameSide ? "Noseslide" : "NoseBluntslide") : (isSameSide ? "Tailslide" : "Bluntslide"));
+                }
+            }
+            else if (flatZone)
+            {
+                if (fiftyfiftyRotRange && (frntTrckTrigg && bckTrckTrigg))
+                {
+                    return "FiftyFifty";
+                }
+                else if ((frntTrckTrigg && (!bckTrckTrigg && !tailTrigg)) || ((!noseTrigg && !frntTrckTrigg) && bckTrckTrigg))
+                {
+                    if (lowEntrRotRange)
+                    {
+                        return (frntTrckTrigg ? "Whatchamajig" : "Feeble");
+                    }
+                    else if (perpGrndRotRange && ((brdTrigg && (frntTrckTrigg || bckTrckTrigg)) || SXLH.TwoDown))
+                    {
+                        return (SXLH.TwoDown && !brdTrigg) ? "Wheelslide" : ((SXLH.FrntSide && toeIsFwd) || (!SXLH.FrntSide && !toeIsFwd)) ? "Lipslide" : "Boardslide";
+                    }
+                    else if (lowExitRotRange)
+                    {
+                        return (!SXLH.IsSwitch ? "Switch " : "") + (frntTrckTrigg ? "Feeble" : "Whatchamajig");
+                    }
+                }
+                else if ((noseTrigg && (!bckTrckTrigg && !tailTrigg)) || ((!noseTrigg && !frntTrckTrigg) && tailTrigg))
+                {
+                    return (noseTrigg ? "Noseslide" : "Tailslide");
+                }
+            }
+            else if (belowEdge)
+            {
+                if ((frntTrckTrigg && (!bckTrckTrigg && !tailTrigg)) || ((!noseTrigg && !frntTrckTrigg) && bckTrckTrigg))
+                {
+                    if (lowEntrRotRange)
+                    {
+                        return (frntTrckTrigg ? "Lazy" : "Smith");
+                    }
+                    else if (perpGrndRotRange)
+                    {
+                        if ((noseTrigg && (!bckTrckTrigg && !tailTrigg)) || ((!noseTrigg && !frntTrckTrigg) && tailTrigg))
                         {
-                            return (frntTrckTrigg ? isSameSide ? "Lazy" : "Whatchamajig" : isSameSide ? "Feeble" : "Smith");
+                            return (noseTrigg ? "Noseslide" : "Tailslide");
                         }
-                        else if (perpGrndRotRange && crntUpAngl <= -22f && frntTrckTrigg || bckTrckTrigg)
+                        else if (crntUpAngl <= -15)
                         {
                             return "Anchor";
                         }
-                        else if (lowExitRotRange)
-                        {
-                            return (!SXLH.IsSwitch ? "Switch " : "") + (frntTrckTrigg ? isSameSide ? "Smith" : "Feeble" : isSameSide ? "Whatchamajig" : "Lazy");
-                        }
-                        else if ((noseTrigg && !bckTrckTrigg && !tailTrigg) || (!noseTrigg && !frntTrckTrigg && tailTrigg))
-                        {
-                            return (noseTrigg || frntTrckTrigg ? "Noseslide" : "Tailslide");
-                        }
                     }
-                    else
+                    else if (lowExitRotRange)
                     {
-                        if (crntUpAngl >= 5f)
-                        {
-                            if (entrGrndRotRange)
-                            {
-                                return (noseTrigg || frntTrckTrigg ? isSameSide ? "Crook" : "Overcrook" : isSameSide ? "Salad" : "Suski");
-                            }
-                            else if (perpGrndRotRange)
-                            {
-                                return (noseTrigg || frntTrckTrigg ? isSameSide ? "Noseslide" : (SXLH.TwoDown ? "NoseBluntslide" : "Noseslide") : isSameSide ? "Tailslide" : (SXLH.TwoDown ? "Bluntslide" : "Tailslide"));
-                            }
-                            else if (exitGrndRotRange)
-                            {
-                                return (!SXLH.IsSwitch ? "Switch " : "") + (noseTrigg || frntTrckTrigg ? isSameSide ? "Suski" : "Salad" : isSameSide ? "Overcrook" : "Crook");
-                            }
-                            else if ((noseTrigg || frntTrckTrigg && !bckTrckTrigg && !tailTrigg) || (!noseTrigg && !frntTrckTrigg && bckTrckTrigg || tailTrigg))
-                            {
-                                return (noseTrigg || frntTrckTrigg ? (!SXLH.TwoDown && frntTrckTrigg ? "Nosegrind" : "Noseslide") : (!SXLH.TwoDown && bckTrckTrigg ? "FiveO" : "Tailslide"));
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    if (brdLipRotRange && brdTrigg && !aboveEdge)
-                    {
-                        return !SXLH.TwoDown && !frntTrckTrigg && !bckTrckTrigg
-                            ? "Boardslide"
-                            : "Lipslide";
+                        return (!SXLH.IsSwitch ? "Switch " : "") + (frntTrckTrigg ? "Smith" : "Lazy");
                     }
                 }
             }
+
+
+            //if (fiftyfiftyRotRange && (frntTrckTrigg && bckTrckTrigg))
+            //{
+            //    return "FiftyFifty";
+            //}
+            //else
+            //{
+            //    if (((noseTrigg || frntTrckTrigg || SXLH.TwoDown) && (!bckTrckTrigg && !tailTrigg)) || ((!noseTrigg && !frntTrckTrigg) && (SXLH.TwoDown || bckTrckTrigg || tailTrigg)))
+            //    {
+            //        if (crntUpAngl < 0)
+            //        {
+            //            if (lowEntrRotRange)
+            //            {
+            //                return (frntTrckTrigg ? isSameSide ? "Lazy" : "Whatchamajig" : isSameSide ? "Smith" : "Feeble");
+            //            }
+            //            else if (lowExitRotRange)
+            //            {
+            //                return (!SXLH.IsSwitch ? "Switch " : "") + (frntTrckTrigg ? isSameSide ? "Smith" : "Feeble" : isSameSide ? "Lazy" : "Whatchamajig");
+            //            }
+            //        }
+            //        else if (crntUpAngl >= 10)
+            //        {
+            //            if (noseFiveRotRange)
+            //            {
+            //                return (noseTrigg || frntTrckTrigg) ? "Nosegrind" : "FiveO";
+            //            }
+            //            else if (entrGrndRotRange)
+            //            {
+            //                return (noseTrigg || frntTrckTrigg ? isSameSide ? "Crook" : "Overcrook" : isSameSide ? "Suski" : "Salad");
+            //            }
+            //            else if (exitGrndRotRange)
+            //            {
+            //                return (!SXLH.IsSwitch ? "Switch " : "") + (noseTrigg || frntTrckTrigg ? isSameSide ? "Suski" : "Salad" : isSameSide ? "Crook" : "Overcrook");
+            //            }
+            //            else if (perpGrndRotRange)
+            //            {
+            //                return ((noseTrigg || frntTrckTrigg) ? (isSameSide ? "Noseslide" : "NoseBluntslide") : (isSameSide ? "Tailslide" : "Bluntslide"));
+            //            }
+            //        }
+            //    }
+            //    else if (perpGrndRotRange)
+            //    {
+            //        if ((crntUpAngl <= -15) && (frntTrckTrigg || bckTrckTrigg))
+            //        {
+            //            return "Anchor";
+            //        }
+            //        else if (crntUpAngl < 0 && ((brdTrigg && (frntTrckTrigg || bckTrckTrigg)) || SXLH.TwoDown) && ((SXLH.FrntSide && toeIsFwd) || (!SXLH.FrntSide && !toeIsFwd)))
+            //        {
+            //            return (SXLH.TwoDown && !brdTrigg) ? "Wheelslide" : ((SXLH.FrntSide && toeIsFwd) || (!SXLH.FrntSide && !toeIsFwd)) ? "Lipslide" : "Boardslide";
+            //        }
+            //        else if (brdTrigg && !aboveEdge && !frntTrckTrigg && !bckTrckTrigg)
+            //        {
+            //            return "Boardslide";
+            //        }
+            //    }
+            //}
             return "";
         }
     }

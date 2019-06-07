@@ -40,14 +40,12 @@ namespace DWG_TT
         private float brdTwkMax; public float BrdTwkMax { get { return this.brdTwkMax; } }
         private float brdTwk; public float BrdTwk { get { return this.brdTwk; } }
 
-
         private bool lateFlip;
         private bool didApex;
         private float brdHeightMax;
 
         private float ftDwnTime;
-        private float setupTime;
-        private float impctStrt;
+        private float trickTimer;
         private float manTime;
 
         private string crntMan = "";
@@ -65,7 +63,7 @@ namespace DWG_TT
             //DebugOut.Log(this.GetType().Name + " PlayerInfo Reset:" + p_sender);
         }
 
-        void LateUpdate()
+        void FixedUpdate()
         {
             if (!Main.enabled || !Main.settings.do_TrackTricks) { return; };
             if (this.guiMan == null)
@@ -83,17 +81,20 @@ namespace DWG_TT
             }
 
             float chkTime = (Time.time + Time.deltaTime);
-            float spdAdjust = Mathf.Clamp(SXLH.BrdSpeed, 0.25f, 5.0f);
 
             if (this.lastState != SXLH.CrntState)
             {
+                //DebugOut.Log("\n" +
+                //    "State Changed to : " + SXLH.CrntState + "\n" +
+                //    "IsBrdFwd = " + SXLH.IsBrdFwd + "\n" +
+                //    "IsSwitch = " + SXLH.IsSwitch + "\n"
+                //    );
+
                 switch (SXLH.CrntState)
                 {
-                    case SXLH.Impact:              // AddTrick(SXLH.Impact);
-                    case SXLH.Manualling:          // AddTrick(SXLH.Manualling);
-                    case SXLH.Grinding:            // AddTrick(SXLH.Grinding);
-                        //if ((chkTime - this.impctStrt) >= 0.20f && (this.bonkWait >= (chkTime - this.impctStrt))) { AddTrick("Bonk"); };
-                        this.impctStrt = chkTime;
+                    case SXLH.Impact:
+                    case SXLH.Manualling:
+                    case SXLH.Grinding:
                         this.CheckRot();
                         switch (SXLH.CrntState)
                         {
@@ -101,47 +102,36 @@ namespace DWG_TT
                             case SXLH.Manualling:
                                 this.manTime = chkTime;
                                 break;
-                                //case SXLH.Grinding:
-                                //    this.grndWait = (this.grndWait / spdAdjust);
-                                //    this.grndTime = chkTime;
-                                //    break;
                         };
                         break;
 
-                    case SXLH.BeginPop:            // AddTrick(SXLH.BeginPop);
-                        //if ((chkTime - this.impctStrt) >= 0.20f && (this.bonkWait >= (chkTime - this.impctStrt))) { this.guiMan.AddTrick("Bonk"); };
-                        //this.trickPrefix = this.GetPrefix(SXLH.BeginPop);
-                        this.guiTrck.TrackedTime = chkTime;
-                        // Need to build checks for Mongo, should be able to grab a variable from PlayerController
-                        //if ((chkTime - ftDwnTime) <= 0.1f) { this.guiMan.AddTrick("NoComply"); };
-                        break;
+                    case SXLH.BeginPop:
+                    case SXLH.Pop:
+                    case SXLH.Released:
+                    case SXLH.InAir:
+                        if (SXLH.CrntState == SXLH.BeginPop) {
+                            //this.guiTrck.TrackedTime = chkTime;
+                            // Needs some work I've run across some logic in dnSpy that should aid in NoComply detection. Might require a Harmony_Patch
+                            //if ((chkTime - ftDwnTime) <= 0.1f) { this.guiMan.AddTrick("NoComply"); };
+                        }
 
-                    case SXLH.Pop:                 // AddTrick(SXLH.Pop);
-                                                   //break;
+                        if (SXLH.CrntState == SXLH.Pop || SXLH.CrntState == SXLH.Released || SXLH.CrntState == SXLH.InAir)
+                        {
+                            if (SXLH.CrntState == SXLH.Pop) { this.guiTrck.TrackedTime = chkTime; }
 
-                    case SXLH.Released:            // AddTrick(SXLH.Released);
-                        //Needs trajectory or at least velocity
-                        //if (didApex) { lateFlip = true; }
-                        //if (didApex || BrdPos.y < (brdPosLast.y - ((brdPosLast.y - BrdPos.y)/0.75f)))
-                        //{
-                        //    didApex = true;
-                        //    lateFlip = true;
-                        //    brdHeightMax = brdPosLast.y;
-                        //};
-                        //if ((chkTime - this.impctStrt) >= 0.25f && (this.bonkWait >= (chkTime - this.impctStrt))) { this.guiMan.AddTrick("Bonk"); this.impctStrt = chkTime; };
-                        break;
+                            //Needs trajectory or at least velocity
+                            //if (BrdPos.y < (brdPosLast.y - ((brdPosLast.y - BrdPos.y)/0.75f)))
+                            //{
+                            //     this.didApex = true;
+                            //     brdHeightMax = brdPosLast.y;
+                            //};
+                            //if (SXLH.CrntState == SXLH.Released && didApex) {  this.lateFlip = true; }
+                        }
 
-                    case SXLH.InAir:               // AddTrick(SXLH.InAir);
-                        //Needs trajectory or at least velocity
-                        //if (BrdPos.y < (brdPosLast.y - ((brdPosLast.y - BrdPos.y) / 0.75f)))
-                        //{
-                        //    didApex = true;
-                        //    brdHeightMax = brdPosLast.y;
-                        //};
                         switch (this.lastState)
                         {
                             case SXLH.Riding:
-                            //case SXLH.Impact:
+                            case SXLH.Impact:
                             case SXLH.Pushing:
                             case SXLH.Setup:
                             case SXLH.Manualling:
@@ -151,13 +141,13 @@ namespace DWG_TT
                         };
                         break;
 
-                    case SXLH.Riding:              // AddTrick(SXLH.Riding);
-                    case SXLH.Setup:               // AddTrick(SXLH.Setup);
-                    case SXLH.Bailed:              // AddTrick(SXLH.Bailed);
-                    case SXLH.Pushing:             // AddTrick(SXLH.Pushing);
-                    case SXLH.Braking:             // AddTrick(SXLH.Braking);
-                        if (SXLH.CrntState == SXLH.Bailed && ((chkTime - this.guiTrck.TrackedTime) <= 0.5f)) { this.guiTrck.AddTrick(SXLH.Bailed); };
-                        this.ResetRots();
+                    case SXLH.Riding:
+                    case SXLH.Setup:
+                    case SXLH.Bailed:
+                    case SXLH.Pushing:
+                        // Need to build checks for Mongo, should be able to grab a variable from PlayerController
+                    case SXLH.Braking:
+                        //this.ResetRots();
                         break;
                 };
                 this.lastState = SXLH.CrntState;
@@ -170,13 +160,8 @@ namespace DWG_TT
                     // Probably difficult due to transitions in ramps causing the same affect.
                     // Mostly when landing sideways or riding across the face of a surface.
                     break;
-                case SXLH.Setup:
-                    if (((chkTime - this.setupTime) > 1.0f))
-                    {
-                        this.setupTime = chkTime;
-                        this.ResetRots();
-                    };
-                    break;
+                //case SXLH.Setup:
+                //    break;
                 case SXLH.Pushing:
                     this.ftDwnTime = chkTime;
                     break;
@@ -224,7 +209,7 @@ namespace DWG_TT
             this.rightFrnt = ((SXLH.IsSwitch && SXLH.IsReg) || (!SXLH.IsSwitch && SXLH.IsGoofy));
             this.rightWasPop = SXLH.RightPop;
 
-            this.sktrEulLast = SXLH.SktrEulLoc;
+            this.sktrEulLast = SXLH.SktrEul;
             this.sktrPosLast = SXLH.SktrPos;
 
             this.sktrRot = 0f;
@@ -234,7 +219,7 @@ namespace DWG_TT
             this.sktrFlipMax = 0f;
             this.sktrTwkMax = 0f;
 
-            this.brdEulLast = SXLH.BrdEulLoc;
+            this.brdEulLast = SXLH.BrdEul;
             this.brdPosLast = SXLH.BrdPos;
             this.brdStrtPos = this.brdPosLast;
 
@@ -272,17 +257,17 @@ namespace DWG_TT
                     return;
             };
 
-            this.sktrRot += Mathd.AngleBetween(SXLH.SktrEulLoc.y, this.sktrEulLast.y);
-            this.sktrFlip += Mathd.AngleBetween(SXLH.SktrEulLoc.z, this.sktrEulLast.z);
-            this.sktrTwk += Mathd.AngleBetween(SXLH.SktrEulLoc.x, this.sktrEulLast.x);
+            this.sktrRot += Mathd.AngleBetween(SXLH.SktrEul.y, this.sktrEulLast.y);
+            this.sktrFlip += Mathd.AngleBetween(SXLH.SktrEul.z, this.sktrEulLast.z);
+            this.sktrTwk += Mathd.AngleBetween(SXLH.SktrEul.x, this.sktrEulLast.x);
 
             this.sktrRotMax = ((Mathf.Abs(this.sktrRotMax) < Mathf.Abs(this.sktrRot)) ? this.sktrRot : this.sktrRotMax);
             this.sktrFlipMax = ((Mathf.Abs(this.sktrFlipMax) < Mathf.Abs(this.sktrFlip)) ? this.sktrFlip : this.sktrFlipMax);
             this.sktrTwkMax = ((Mathf.Abs(this.sktrTwkMax) < Mathf.Abs(this.sktrTwk)) ? this.sktrTwk : this.sktrTwkMax);
 
-            this.brdRot += Mathd.AngleBetween(SXLH.BrdEulLoc.y, this.brdEulLast.y);
-            this.brdFlip += Mathd.AngleBetween(SXLH.BrdEulLoc.z, this.brdEulLast.z);
-            this.brdTwk += Mathd.AngleBetween(SXLH.BrdEulLoc.x, this.brdEulLast.x);
+            this.brdRot += Mathd.AngleBetween(SXLH.BrdEul.y, this.brdEulLast.y);
+            this.brdFlip += Mathd.AngleBetween(SXLH.BrdEul.z, this.brdEulLast.z);
+            this.brdTwk += Mathd.AngleBetween(SXLH.BrdEul.x, this.brdEulLast.x);
 
             this.brdRotMax = ((Mathf.Abs(this.brdRotMax) < Mathf.Abs(this.brdRot)) ? this.brdRot : this.brdRotMax);
             this.brdFlipMax = ((Mathf.Abs(this.brdFlipMax) < Mathf.Abs(this.brdFlip)) ? this.brdFlip : this.brdFlipMax);
@@ -292,15 +277,17 @@ namespace DWG_TT
             //    "IsBrdFwd = " + SXLH.IsBrdFwd + " : IsSwitch = " + SXLH.IsSwitch + "\n" +
             //    "sktrRotMax = " + this.sktrRotMax + " : this.sktrRot = " + this.sktrRot + "\n" +
             //    "brdRotMax = " + this.brdRotMax + " : this.brdRot = " + this.brdRot + "\n" +
-            //    "brdFlipMax = " + this.brdFlipMax + " : this.brdFlip = " + this.brdFlip + "\n"
+            //    "brdFlipMax = " + this.brdFlipMax + " : this.brdFlip = " + this.brdFlip + "\n\n" +
+            //    "IsRightStick = " + PlayerController.Instance.playerSM.GetPopStickSM().IsRightStick + "\n" +
+            //    "IsFrontFoot = " + PlayerController.Instance.playerSM.GetPopStickSM().IsFrontFoot + "\n"
             //    );
 
 
             this.sktrPosLast = SXLH.SktrPos;
-            this.sktrEulLast = SXLH.SktrEulLoc;
+            this.sktrEulLast = SXLH.SktrEul;
 
             this.brdPosLast = SXLH.BrdPos;
-            this.brdEulLast = SXLH.BrdEulLoc;
+            this.brdEulLast = SXLH.BrdEul;
         }
 
         private int ClampRot(bool p_isFlipRot, float p_inRot, float p_maxOffset)
@@ -360,6 +347,8 @@ namespace DWG_TT
 
         private void CheckRot()
         {
+            if ((Time.time - this.trickTimer) < 0.2f) { /*this.guiTrck.AddTrick("Bonk"); */return; }
+            this.trickTimer = Time.time;
             //Shuffle	A sidewards re-entry into a transition, which is then turned fakie
             //Shifty / 9090	Shifting your board 90 degrees, with feet still in contact with the board, then bringing it back to starting position
             //Revert	A trick that is added on to the end of any other trick, and it means to spin one's self and the board 180 after completing the initial trick
@@ -369,8 +358,8 @@ namespace DWG_TT
             //Frontside Flip  The name given to a frontside ollie 180 with a kickflip
             //Gap	A distance between two riding surfaces which skaters ollie over, and often do other more sophisticated tricks over
 
-            float sktrRotMaxOffset = 90f;
-            float brdRotMaxOffset = 90f;
+            float sktrRotMaxOffset = 60f;
+            float brdRotMaxOffset = 60f;
             float brdFlipMaxOffset = 45f;
 
             int clampSRot = this.ClampRot(false,this.sktrRot, sktrRotMaxOffset);
@@ -389,9 +378,16 @@ namespace DWG_TT
             //    "clampBRotMax = " + clampBRotMax + " : clampBRot = " + clampBRot + "\n" +
             //    "clampBFlipMax = " + clampBFlipMax + " : clampBFlip = " + clampBFlip + "\n\n\n" +
             //    "forced this should be 180? (clampBFlipMax % 360) = " + (clampBFlipMax % 360) + "\n" +
-            //    "impcaspFlip = ((clampBFlipMax == 0) && (Mathf.Abs(this.brdFlipMax) > 90f)) = " + ((clampBFlipMax == 0) && (Mathf.Abs(this.brdFlipMax) > 90f)) + "\n\n\n"
+            //    "impcaspFlip = ((clampBFlipMax == 0) && (Mathf.Abs(this.brdFlipMax) > 90f)) = " + ((clampBFlipMax == 0) && (Mathf.Abs(this.brdFlipMax) > 90f)) + "\n" +
+            //    "IsCurrentGrindMetal = " + PlayerController.Instance.IsCurrentGrindMetal() + "\n" +
+            //    "IsRightStick = " + PlayerController.Instance.playerSM.GetPopStickSM().IsRightStick + "\n" +
+            //    "IsFrontFoot = " + PlayerController.Instance.playerSM.GetPopStickSM().IsFrontFoot + "\n\n\n"
             //    );
-
+            //DebugOut.Log("\n" +
+            //    "IsBrdFwd = " + SXLH.IsBrdFwd + " : IsSwitch = " + SXLH.IsSwitch + "\n" +
+            //    "IsRightStick = " + PlayerController.Instance.playerSM.GetPopStickSM().IsRightStick + "\n" +
+            //    "IsFrontFoot = " + PlayerController.Instance.playerSM.GetPopStickSM().IsFrontFoot + "\n"
+            //    );
 
             string trickPrefix = this.GetPrefix(SXLH.InAir);
 
@@ -421,8 +417,8 @@ namespace DWG_TT
                     break;
             };
 
-            bool sameDir = (sktrDir == brdDir); //(((this.brdRotMax > 0f) && (this.sktrRotMax < 0f)) || ((this.brdRotMax < 0f) && (this.sktrRotMax > 0f)) || ((this.brdRotMax == 0f) && (this.sktrRotMax != 0f)) || ((this.brdRotMax != 0f) && (this.sktrRotMax == 0f)));
-
+            bool sameDir = (sktrDir == brdDir);
+            //bool diffDir = (((this.brdRotMax > 0f) && (this.sktrRotMax < 0f)) || ((this.brdRotMax < 0f) && (this.sktrRotMax > 0f)) || ((this.brdRotMax == 0f) && (this.sktrRotMax != 0f)) || ((this.brdRotMax != 0f) && (this.sktrRotMax == 0f)));
 
 
             bool didFlip = (clampBFlipMax >= 360);
@@ -430,7 +426,8 @@ namespace DWG_TT
             bool forcedFlip = ((Mathf.Abs(this.brdFlipMax) - Mathf.Abs(this.brdFlip)) <= 180); // Should be within 180 less than clampBFlipMax
             //bool impcaspFlip = ((clampBFlipMax == 0) && (Mathf.Abs(this.brdFlipMax) > 90f)); // impossible Bs casper Fs w/ half kick // May need to be 180 - brdFlipMaxOffset for true imp/casp
 
-            bool illusionAngle = (Mathf.Abs(this.brdTwkMax) >= 45f); // True illusion should have a body var of +90 then back -90 // Should come with Shifty calculation
+            bool illusionAngle = (Mathf.Abs(this.brdTwkMax) >= 45f && clampSRotMax == 180);
+            bool dolphinAngle = (Mathf.Abs(this.brdTwkMax) >= 45f && clampSRotMax == 0);
 
             // kick is - w leftFrnt w brdfwd
             // kick is + w leftFrnt w !brdfwd
@@ -456,7 +453,6 @@ namespace DWG_TT
 
             }
 
-            //string sktrBrdDir = "";// = sktrDir + clampSRotMax + (diffDir && (clampSRotMax >= 180f) ? " Sex Change " : "");
             string dtqShuv = this.DTQCheck(clampBFlipMax);
             string dtqFlip = this.DTQCheck(clampBFlipMax);
 
@@ -464,31 +460,110 @@ namespace DWG_TT
             string flipType = kick ? kickType : heel ? "HeelFlip" : "";//(didFlip ? (halfFlip ? "Forced " : "") + (this.lateFlip ? "Late " : "") + dtqFlip + (kick ? kickType : (heel ? "HeelFlip" : "")) : "");
 
             bool skpBrdDir = false;
+            bool skpBrdRot = false;
+            bool skpBrdFlip = false;
 
             string bodyOut = "";
             if (didSktrRot)
             {
                 if (sameDir)
                 {
-                    if (clampSRotMax == clampBRotMax && (trickPrefix.Contains("Fakie") || trickPrefix.Contains("Nollie")))
+                    if (clampSRotMax == clampBRotMax && /*sktrDir == "Bs" && */(trickPrefix.Contains("Fakie")|| trickPrefix.Contains("Nollie")))
                     {
                         bodyOut = (trickPrefix.Contains("Fakie") ? (clampBRotMax < 360 ? "HalfCab" : "Caballerial") : "HeliPop");
+                        skpBrdDir = true;
+                        if ((clampBRotMax < 540 && trickPrefix.Contains("Fakie")) || (clampBRotMax < 360 && trickPrefix.Contains("Nollie"))) { skpBrdRot = true; }
                         trickPrefix = "";
                     }
-                    else if ((clampSRotMax == 180 && clampBRotMax == 360) || (clampSRotMax == 360 && clampBRotMax == 540))
+                    else if (clampSRotMax == 180 && (clampBRotMax == 360 || clampBRotMax == 540))
                     {
-                        bodyOut = (clampBRotMax == 360 ? "Big Spin" : "Gazelle");
+                        bodyOut = "Big" + (clampBRotMax == 540 ? "ger" : "") + (/*(clampBRotMax == clampBFlipMax) ? "" : */" Spin");
+                        skpBrdRot = true;
                     }
-                    //rotOut = (!skpBrdDir ? brdDir + (brdDir.Length > 0 ? " " : "") : "") +
-                    //         (clampSRotMax == clampBRotMax
-                    //            ? trickPrefix == "Fakie " ? (clampSRotMax < 360f ? "HalfCab" : "Caballerial") : (trickPrefix == "Nollie " ? "HeliPop" : "")
-                    //            : (clampSRotMax == 180f && clampBRotMax == 360f) ? "Big Spin" : (clampSRotMax == 360f && clampBRotMax == 540f) ? "Gazelle" : "");
-
-                    //if (clampSRotMax == clampBRotMax && (trickPrefix == "Fakie ") || (trickPrefix == "Nollie ")) { trickPrefix = ""; };
+                    else if (clampSRotMax == 360 && (clampBRotMax == 540 || clampBRotMax == 720))
+                    {
+                        bodyOut = (clampBRotMax == 720 ? "Big " : "") + "Gazelle";
+                        skpBrdRot = true;
+                    }
+                    else if (clampSRotMax == 720 && clampBRotMax == 720 && dtqFlip.Length > 0)
+                    {
+                        bodyOut = "Bomb Flip";
+                        skpBrdRot = true;
+                        skpBrdFlip = true;
+                    }
+                    else if (clampSRotMax >= 180 && clampSRotMax != clampBRotMax)
+                    {
+                        bodyOut = clampSRotMax + " BVar";
+                        //if (Main.settings.skp_Erron)
+                        //{
+                        //    bodyOut = "";
+                        //    skpBrdRot = true;
+                        //}
+                    }
                 }
                 else
                 {
-                    bodyOut = (kick || heel ? "" : "Twisted ") + clampSRotMax + (kick || heel ? " Sex Change" : "");
+                    // bs spin fs bvar kickflip Ghetto bird
+                    if (didFlip && clampSRotMax == 180)
+                    {
+                        if (clampBRotMax == 0)
+                        {
+                            bodyOut = dtqFlip + (sktrDir == "Fs" ? "Royal " : "Disco ") + "Flip";
+                            skpBrdDir = true;
+                            skpBrdRot = true;
+                            skpBrdFlip = true;
+                        }
+                        else if (clampBRotMax == clampBFlipMax)
+                        {
+                            bodyOut = dtqFlip + (dolphinAngle ? "Ghetto Bird" : "Follow " + "Flip");
+                            skpBrdRot = true;
+                            skpBrdFlip = true;
+                        }
+                        else if ((clampBFlipMax - clampBRotMax) == (clampBFlipMax / 2))
+                        {
+                            bodyOut = dtqFlip + "Techno " + "Flip";
+                            skpBrdRot = true;
+                            skpBrdFlip = true;
+                        }
+
+                    }
+                    else if (didFlip && clampSRotMax == 360)
+                    {
+                        if (clampBRotMax == 0)
+                        {
+                            bodyOut = dtqFlip + (sktrDir == "Fs" ? "Royal " : "Disco ") + "Flip";
+                            skpBrdDir = true;
+                            skpBrdRot = true;
+                            skpBrdFlip = true;
+                        }
+                        else if (clampBRotMax == clampBFlipMax)
+                        {
+                            bodyOut = dtqFlip + (kick ? "Mother " : "Father ") + "Flip";
+                            skpBrdRot = true;
+                            skpBrdFlip = true;
+                        }
+                        else if ((clampBFlipMax - clampBRotMax) == (clampBFlipMax / 2))
+                        {
+                            bodyOut = dtqFlip + (kick ? "Heaven " : "Hell ") + "Flip";
+                            skpBrdRot = true;
+                            skpBrdFlip = true;
+                        }
+                    }
+                    else if (trickPrefix.Contains("Fakie") && clampSRotMax == 360 && clampBRotMax == 360 && !didFlip)
+                    {
+                        bodyOut = "Izzy Spin";
+                        trickPrefix = "";
+                        skpBrdRot = true;
+                    }
+                    else
+                    {
+                        bodyOut = (kick || heel ? "" : "Twisted ") + clampSRotMax + (kick || heel ? " Sex Change" : "");
+                        //if (Main.settings.skp_Erron)
+                        //{
+                        //    bodyOut = "";
+                        //    skpBrdRot = true;
+                        //}
+                    }
                 }
             }
 
@@ -499,12 +574,7 @@ namespace DWG_TT
             }
             else if (didShuv && !didFlip)
             {
-                flipOut = (clampBRotMax == clampSRotMax) && sameDir
-                                ? clampBRotMax.ToString()
-                                : clampBRotMax >= 360
-                                    ? clampBRotMax.ToString()
-                                    : ""
-                                    + "Shove It";
+                flipOut = (!skpBrdRot ? (clampBRotMax >= 360 ? clampBRotMax.ToString() + " " : "") + "Shove It" : "");
             }
             else if (didShuv && didFlip)
             {
@@ -512,49 +582,49 @@ namespace DWG_TT
                 {
                     if (brdDir == "Fs")
                     {
-                        flipOut = dtqFlip + (kick ? (trickPrefix.Contains("Switch") || trickPrefix.Contains("Nollie")) ? "Gingersnap" : "HardFlip" : "Varial Heelflip");
-                        if (trickPrefix.Contains("Switch") || trickPrefix.Contains("Nollie")) { trickPrefix = ""; };
+                        flipOut = (kick ? (dtqFlip.Length > 0 ? "Nightmare " : "") + ((trickPrefix.Contains("Fakie") || trickPrefix.Contains("Nollie")) ? "Gingersnap" : "HardFlip") : (dolphinAngle ? "Dolphin " + (dtqFlip.Length > 0 ? "Nightmare " : "") : (dtqFlip.Length > 0 ? "Nightmare " : "Varial")) + "HeelFlip");
+                        if (trickPrefix.Contains("Fakie") || trickPrefix.Contains("Nollie")) { trickPrefix = ""; };
                     }
                     else if (brdDir == "Bs")
                     {
-                        flipOut = dtqFlip + (kick ? "Varial KickFlip" : "Inward HeelFlip");
+                        flipOut = (kick ? (dolphinAngle ? "Dolphin " + (dtqFlip.Length > 0 ? "Nightmare " : "") + "Flip" : (dtqFlip.Length > 0 ? "Nightmare Flip" : "Varial KickFlip")) : (dtqFlip.Length > 0 ? "Nightmare HeelFlip" : "Inward HeelFlip"));
                     }
                     skpBrdDir = true;
+                    skpBrdRot = true;
                 }
                 else if (clampBFlipMax == clampBRotMax)
                 {
                     if (brdDir == "Fs")
                     {
-                        flipOut = dtqFlip + (kick ? (trickPrefix.Contains("Switch") || trickPrefix.Contains("Nollie")) ? "Gingersnap" : "HardFlip" : "Laser Flip");
-                        if (trickPrefix.Contains("Switch") || trickPrefix.Contains("Nollie")) { trickPrefix = ""; };
+                        flipOut = dtqFlip + (kick ? (trickPrefix.Contains("Fakie") || trickPrefix.Contains("Nollie")) ? "Gingersnap" : "HardFlip" : "Laser Flip");
+                        if (trickPrefix.Contains("Fakie") || trickPrefix.Contains("Nollie")) { trickPrefix = ""; };
                     }
                     else if (brdDir == "Bs")
                     {
                         flipOut = dtqFlip + (kick ? "Tre Flip" : "Tre HeelFlip");
                     }
                     skpBrdDir = true;
+                    skpBrdRot = true;
                 }
                 else
                 {
-                    flipOut = ((clampBRotMax == clampSRotMax) && sameDir
-                                  ? !bodyOut.Contains("HalfCab") && !bodyOut.Contains("Big Spin") && !bodyOut.Contains("Gazelle") ? clampBRotMax.ToString() : ""
-                                  : clampBRotMax >= 360
-                                      ? !bodyOut.Contains("Gazelle") ? clampBRotMax.ToString() + " " : ""
-                                      : ""
-                                      + "Shove It"
-                              )
-                              + (flipType.Length > 0 ? " " : "") + dtqFlip + flipType;
+                    flipOut = (!skpBrdRot ? (clampBRotMax >= 360? clampBRotMax.ToString() + " " : "") + "Shove It" + (flipType.Length > 0 ? " " : ""): "") + dtqFlip + flipType;
+                    //if (Main.settings.skp_Erron)
+                    //{
+                    //    skpBrdRot = true;
+                    //    skpBrdFlip = true;
+                    //}
                 }
             }
 
-            string trckOut = (!skpBrdDir ? brdDir + (brdDir.Length > 0? " " : "") : "") + bodyOut + (bodyOut.Length > 0 ? " " : "") + flipOut;
+            string trckOut = (skpBrdDir ? "" : brdDir) + (!skpBrdDir &&  brdDir.Length > 0  ? " " : "") + bodyOut + (!skpBrdFlip && (bodyOut.Length > 0 && flipOut.Length > 0) ? " " : "") + (skpBrdFlip ? "" : flipOut);
 
             if (trckOut.Length > 0)
             {
                 this.guiTrck.AddTrick(trickPrefix + trckOut);
             }
 
-            this.ResetRots();
+            //if (!Main.settings.con_Enable) { this.ResetRots(); }
         }
     }
 }

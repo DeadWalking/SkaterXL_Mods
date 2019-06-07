@@ -20,11 +20,9 @@ namespace DWG_TT
         static private string lastTricks; public string LastTricks { get { return lastTricks; } }
 
         static private double trackedTime; public double TrackedTime { get { return trackedTime; } set { trackedTime = value; } }
-        private const float ttBorder = 8f;
 
-        static private float offSetX = 0f; public float OffSetX { get { return offSetX; } set { offSetX = value; } }
-        static private float offSetY = 0f; public float OffSetY { get { return offSetY; } set { offSetY = value; } }
-
+        public int TTFontSize { get { return tricksStyle.fontSize; } set { tricksStyle.fontSize = value; } }
+        public const int ttBorder = 8;
 
         void OnEnable()
         {
@@ -34,6 +32,11 @@ namespace DWG_TT
             tricks = new GUIContent("");
             tricksStyle = GUI.skin.box;
             tricksSize = Vector2.zero;
+        }
+
+        void LateUpdate()
+        {
+            if (SXLH.CrntState == SXLH.Bailed && ((Time.time - trackedTime) <= 0.5f)) { AddTrick(SXLH.Bailed); trackedTime -= 1f; };
         }
 
         void OnGUI()
@@ -48,7 +51,7 @@ namespace DWG_TT
             tricksStyle.alignment = TextAnchor.MiddleRight;
             tricks.text = trackedTricks;
             tricksSize = tricksStyle.CalcSize(tricks);
-            GUI.Label(new Rect(((Screen.width - (ttBorder - offSetX)) - tricksSize.x), ((Screen.height - (ttBorder - offSetY)) - tricksSize.y), tricksSize.x, tricksSize.y), tricks, tricksStyle);
+            GUI.Label(new Rect(((Screen.width - (ttBorder + Main.settings.tt_borderX)) - tricksSize.x), ((Screen.height - (ttBorder + Main.settings.tt_borderY)) - tricksSize.y), tricksSize.x, tricksSize.y), tricks, tricksStyle);
         }
 
         public void AddTrick(string p_newTrick)
@@ -65,7 +68,6 @@ namespace DWG_TT
         }
     }
 
-
     class GUIM : MonoBehaviour
     {
         private PlayerController pCon;
@@ -80,7 +82,6 @@ namespace DWG_TT
         private RayCastTrigLines[] rfTrckrs = new RayCastTrigLines[5];
         private RayCastTrigLines[] rrTrckrs = new RayCastTrigLines[5];
 
-        private bool conEnable = false; public bool ConEnable { get { return this.conEnable; } }
         private bool showGHelp = false; public bool GrndTrainers { get { return this.showGHelp; } }
         private bool makeSplnMarks = false;
         private bool showSplnMarks = false; public bool SplnMarks { get { return this.showSplnMarks; } }
@@ -207,10 +208,6 @@ namespace DWG_TT
             if (Input.GetKey(KeyCode.LeftControl) && (Time.time - this.frmTime) > 0.1f)
             {
                 this.frmTime = Time.time + Time.deltaTime;
-                if (Input.GetKey(KeyCode.BackQuote))
-                {
-                    this.conEnable = !this.conEnable;
-                }
                 if (Input.GetKey(KeyCode.Period))
                 {
                     this.showSplnMarks = !this.showSplnMarks;
@@ -224,7 +221,7 @@ namespace DWG_TT
             }
 
             GUI.backgroundColor = Color.black;
-            if (this.conEnable)
+            if (Main.settings.con_Enable)
             {
                 if (this.consoleCont == null)
                 {
@@ -239,30 +236,29 @@ namespace DWG_TT
                     "RayLines---:      " + this.showRayLines + "\n" + "\n" +
                     //"SktrEulLast:    X:" + this.plyrInfo.SktrEulLast.x + " Y:" + this.plyrInfo.SktrEulLast.y + " Z:" + this.plyrInfo.SktrEulLast.z + "\n" +
                     //"BrdEulLast:     X:" + this.plyrInfo.BrdEulLast.x + " Y:" + this.plyrInfo.BrdEulLast.y + " Z:" + this.plyrInfo.BrdEulLast.z + "\n" +
-                    //"SktrRot:          " + this.plyrInfo.SktrRot + "\n" +
-                    //"SktrRotMax:       " + this.plyrInfo.SktrRotMax + "\n" + "\n" +
-                    //"SktrFlip:         " + this.plyrInfo.SktrFlip + "\n" +
-                    //"SktrFlipMax:      " + this.plyrInfo.SktrFlipMax + "\n" + "\n" +
-                    //"SktrTwk:          " + this.plyrInfo.SktrTwk + "\n" +
-                    //"SktrTwkMax:       " + this.plyrInfo.SktrTwkMax + "\n" + "\n" +
-                    //"BrdRot:           " + this.plyrInfo.BrdRot + "\n" +
-                    //"BrdRotMax:        " + this.plyrInfo.BrdRotMax + "\n" + "\n" +
-                    //"BrdFlip:          " + this.plyrInfo.BrdFlip + "\n" +
-                    //"BrdFlipMax:       " + this.plyrInfo.BrdFlipMax + "\n" + "\n" +
-                    //"BrdTwk:           " + this.plyrInfo.BrdTwk + "\n" +
-                    //"BrdTwkMax:        " + this.plyrInfo.BrdTwkMax + "\n" + "\n" +
+                    "SktrRot:          " + this.plyrInfo.SktrRot + "\n" +
+                    "SktrRotMax:       " + this.plyrInfo.SktrRotMax + "\n" + "\n" +
+                    "SktrFlip:         " + this.plyrInfo.SktrFlip + "\n" +
+                    "SktrFlipMax:      " + this.plyrInfo.SktrFlipMax + "\n" + "\n" +
+                    "SktrTwk:          " + this.plyrInfo.SktrTwk + "\n" +
+                    "SktrTwkMax:       " + this.plyrInfo.SktrTwkMax + "\n" + "\n" +
+                    "BrdRot:           " + this.plyrInfo.BrdRot + "\n" +
+                    "BrdRotMax:        " + this.plyrInfo.BrdRotMax + "\n" + "\n" +
+                    "BrdFlip:          " + this.plyrInfo.BrdFlip + "\n" +
+                    "BrdFlipMax:       " + this.plyrInfo.BrdFlipMax + "\n" + "\n" +
+                    "BrdTwk:           " + this.plyrInfo.BrdTwk + "\n" +
+                    "BrdTwkMax:        " + this.plyrInfo.BrdTwkMax + "\n" + "\n" +
                     //"TrigManColl:      " + SXLH.TrigManIsColl + "\n" +
                     "BrdSpeed---:      " + SXLH.BrdSpeed + "\n" +
                     "FwdAngle---:      " + this.grndMan.EdgeFwdAngl + "\n" +
                     "UpAngle----:      " + this.grndMan.EdgeUpAngl + "\n" + "\n" +
                     "EdgeHght---:      " + this.grndMan.HghtDiff + "\n" + "\n" +
-                    "TrickArea--:      " + this.grndMan.TrickArea + "\n" + "\n" +
                     "TrickHght--:      " + this.grndMan.TrickHght + "\n" + "\n" +
-                    //"noseTrig:         " + GrndTrigs.Hit[GrndTrigs.NTrig] + "\n" +
-                    //"frntTrig:         " + GrndTrigs.Hit[GrndTrigs.FTTrig] + "\n" +
-                    //"brdTrig:          " + GrndTrigs.Hit[GrndTrigs.BrdTrig] + "\n" +
-                    //"bckTrig:          " + GrndTrigs.Hit[GrndTrigs.BTTrig] + "\n" +
-                    //"tailTrig:         " + GrndTrigs.Hit[GrndTrigs.TTrig] + "\n" + "\n" +
+                    "noseTrig:         " + GrndTrigs.Hit[SXLH.FlipTrigs ? GrndTrigs.NTrig : GrndTrigs.TTrig] + "\n" +
+                    "frntTrig:         " + GrndTrigs.Hit[SXLH.FlipTrigs ? GrndTrigs.FTTrig : GrndTrigs.BTTrig] + "\n" +
+                    "brdTrig:          " + GrndTrigs.Hit[GrndTrigs.BrdTrig] + "\n" +
+                    "bckTrig:          " + GrndTrigs.Hit[SXLH.FlipTrigs ? GrndTrigs.BTTrig : GrndTrigs.FTTrig] + "\n" +
+                    "tailTrig:         " + GrndTrigs.Hit[SXLH.FlipTrigs ? GrndTrigs.TTrig : GrndTrigs.NTrig] + "\n" + "\n" +
                     "CrntState:        " + SXLH.CrntState + "\n" + "\n" +
                     "Stance-----:      " + (SXLH.IsReg ? "Regular" : "Goofy") + "\n" +
                     "CrntGrind--:      " + this.grndMan.CrntGrind + "\n" + "\n" +
@@ -273,13 +269,17 @@ namespace DWG_TT
                     //"AllDown:          " + SXLH.AllDown + "\n" +
                     "TwoDwn-----:      " + SXLH.TwoDown + "\n" +
                     "IsSwitch---:      " + SXLH.IsSwitch + "\n" +
-                    "IsBrdFwd---:      " + SXLH.IsBrdFwd + "\n" +
-                    "GetPrefix:         " + this.plyrInfo.GetPrefix(SXLH.CrntState) + //"\n" +
-                    //"LeftFrnt:         " + this.plyrInfo.LeftFrnt + "\n" +
-                    //"LeftPop:          " + SXLH.LeftPop + "\n" + "\n" +
-                    //"RightFrnt:        " + this.plyrInfo.RightFrnt + "\n" +
-                    //"RightPop:         " + SXLH.RightPop + "\n" + "\n" +
-                ""
+                    "IsBrdFwd---:      " + SXLH.IsBrdFwd + "\n" + "\n" +
+                    "LeftFrnt:         " + this.plyrInfo.LeftFrnt + "\n" +
+                    "LeftPop:          " + SXLH.LeftPop + "\n" + "\n" +
+                    "RightFrnt:        " + this.plyrInfo.RightFrnt + "\n" +
+                    "RightPop:         " + SXLH.RightPop + "\n" + "\n" +
+                    "GetPrefix:        " + this.plyrInfo.GetPrefix(SXLH.CrntState) + "\n" + "\n" +
+                    //"GO Name:          " + PlayerController.Instance.gameObject.name + "\n" +
+                    "MovementMaster:   " + PlayerController.Instance.movementMaster.ToString() + "\n" +
+                    //"Skater RBGOName:      " + PlayerController.Instance.skaterController.skaterRigidbody.gameObject.name + "\n" +
+                    //"Skater BPTag:     " + PlayerController.Instance.skaterController.skaterRigidbody.ToString() + "\n" +
+                    ""
                 );
 
                 this.conSize = this.consoleStyle.CalcSize(this.consoleCont);

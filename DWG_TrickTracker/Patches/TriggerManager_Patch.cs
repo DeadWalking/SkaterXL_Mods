@@ -14,7 +14,8 @@ namespace DWG_TT
             if (Main.settings.use_custTrigs || !Main.settings.do_TrackTricks) { return; };
             if (__instance.Colliding)
             {
-                GrndTrigs.Hit[GrndTrigs.TrigByName(__instance.name)] = (__instance.name == "Board Trigger" && (GrndTrigs.Hit[GrndTrigs.NTrig] || GrndTrigs.Hit[GrndTrigs.TTrig]) ? false : __instance.Colliding);
+                //GrndTrigs.Hit[GrndTrigs.TrigByName(__instance.name)] = (__instance.name == "Board Trigger" && (GrndTrigs.Hit[GrndTrigs.NTrig] || GrndTrigs.Hit[GrndTrigs.TTrig]) ? false : __instance.Colliding);
+                GrndTrigs.Hit[GrndTrigs.TrigByName(__instance.name)] = __instance.Colliding;
             }
         }
     }
@@ -28,7 +29,8 @@ namespace DWG_TT
             if (Main.settings.use_custTrigs || !Main.settings.do_TrackTricks) { return; };
             if (__instance.Colliding)
             {
-                GrndTrigs.Hit[GrndTrigs.TrigByName(__instance.name)] = (__instance.name == "Board Trigger" && (GrndTrigs.Hit[GrndTrigs.NTrig] || GrndTrigs.Hit[GrndTrigs.TTrig]) ? false : __instance.Colliding);
+                //GrndTrigs.Hit[GrndTrigs.TrigByName(__instance.name)] = (__instance.name == "Board Trigger" && (GrndTrigs.Hit[GrndTrigs.NTrig] || GrndTrigs.Hit[GrndTrigs.TTrig]) ? false : __instance.Colliding);
+                GrndTrigs.Hit[GrndTrigs.TrigByName(__instance.name)] = __instance.Colliding;
             }
         }
     }
@@ -62,15 +64,15 @@ namespace DWG_TT
             switch (p_sType)
             {
                 case "Nose Trigger":
-                    return SXLH.FlipTrigs ? NTrig : TTrig;
+                    return NTrig;// SXLH.FlipTrigs ? NTrig : TTrig;
                 case "Front Truck Trigger":
-                    return SXLH.FlipTrigs ? FTTrig : BTTrig;
+                    return FTTrig;// SXLH.FlipTrigs ? FTTrig : BTTrig;
                 case "Board Trigger":
                     return BrdTrig;
                 case "Back Truck Trigger":
-                    return SXLH.FlipTrigs ? BTTrig : FTTrig;
+                    return BTTrig;// SXLH.FlipTrigs ? BTTrig : FTTrig;
                 case "Tail Trigger":
-                    return SXLH.FlipTrigs ? TTrig : NTrig;
+                    return TTrig;//SXLH.FlipTrigs ? TTrig : NTrig;
                 default:
                     return BrdTrig;
             }

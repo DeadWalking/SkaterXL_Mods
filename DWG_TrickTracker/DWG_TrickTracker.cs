@@ -12,7 +12,7 @@ namespace DWG_TT
         static private readonly bool debugMe = true;
         static private string debugTitle = "DebugOut";
         static public void SetTitle(string p_newTitle) { debugTitle = p_newTitle; }
-        static public void Log(string p_dbgStr) { if (!debugMe) { return; }; Debug.Log("<----> " + debugTitle + " - " + p_dbgStr + " <---->"); }
+        static public void Log(string p_dbgStr) { if (!debugMe) { return; }; Debug.Log("<-DWG-> " + debugTitle + " - " + p_dbgStr + " <-DWG->"); }
     }
 
     class TT : MonoBehaviour
@@ -30,6 +30,14 @@ namespace DWG_TT
         private ModUILabel labelTimerU;
         private ModUILabel labelTimerD;
         private ModUILabel labelVertHorz;
+        private ModUILabel labelPosL;
+        private ModUILabel labelPosR;
+        private ModUILabel labelPosU;
+        private ModUILabel labelPosD;
+        private ModUILabel labelFntSzeD;
+        private ModUILabel labelFntSzeU;
+        private ModUILabel labelSkpErroneous;
+        private ModUILabel labelConEnable;
         //private ModUILabel labelCustomTrigs;
 
         private readonly Dictionary<KeyCode, string> keyNames = new Dictionary<KeyCode, string>()
@@ -46,9 +54,9 @@ namespace DWG_TT
         private readonly KeyCode ttTimerD = KeyCode.Alpha1;
         private readonly KeyCode ttTimerU = KeyCode.Alpha2;
         private readonly KeyCode ttEnable = KeyCode.Alpha3;
-        private readonly KeyCode ttAxis = KeyCode.Alpha6;
         private readonly KeyCode ttLanding = KeyCode.Alpha4;
         private readonly KeyCode ttGHelp = KeyCode.Alpha5;
+        private readonly KeyCode ttAxis = KeyCode.Alpha6;
         private readonly KeyCode ttCtrigs = KeyCode.Alpha7;
 
         private string titleWithKey;
@@ -58,9 +66,19 @@ namespace DWG_TT
         private string tricksAtLanding;
         private string showGhelp;
         private string customTrigs;
+        private string trackerPosL;
+        private string trackerPosR;
+        private string trackerPosU;
+        private string trackerPosD;
+        private string trackerFntSzeD;
+        private string trackerFntSzeU;
+        private string trackerSkpErroneous;
+        private string trackerConEnable;
+        private string lableFiller;
         private string lableLine;
         private bool lameBool;
 
+        private bool isDestroyed;
         //private float keyDownTime;
 
         //private List<SceneTrick> GuiTricks = new List<SceneTrick>();
@@ -91,6 +109,7 @@ namespace DWG_TT
             SceneManager.sceneUnloaded += this.OnSceneUnLoaded;
             this.plyrInfo = new PI();
             this.guiMan = new GUIM();
+            this.isDestroyed = false;
         }
 
         void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -101,56 +120,64 @@ namespace DWG_TT
 
         void OnSceneUnLoaded(Scene scene)
         {
-            this.TTReset("OnSceneUnLoaded: Scene: " + scene.name);
+            DebugOut.Log(this.GetType().Name + "OnSceneUnLoaded: Scene: " + scene.name);
+        }
+
+        void OnDisable()
+        {
+            this.TTReset("OnDisable");
         }
 
         void OnDestroy()
         {
             this.TTReset("OnDestroy");
+        }
+
+        void OnApplicationQuit()
+        {
+            this.TTReset("OnApplicationQuit");
+        }
+
+        void TTReset(string p_sender)
+        {
+            DebugOut.Log(this.GetType().Name + " TTReset: " + p_sender + ": AlreadyDestroyed: " + this.isDestroyed);
+            if (this.isDestroyed) { return; }
+            this.isDestroyed = true;
+
             SceneManager.sceneLoaded -= this.OnSceneLoaded;
             SceneManager.sceneUnloaded -= this.OnSceneUnLoaded;
+            Main.settings.con_Enable = false;
+            this.labelConEnable.SetToggleValue(Main.settings.con_Enable);
+
             this.modMenuBox.RemoveLabel("strt-lineL");
             this.modMenuBox.RemoveLabel("strt-lineR");
             this.modMenuBox.RemoveLabel("do-trackTricks");
             this.modMenuBox.RemoveLabel("at-trickLanding");
             this.modMenuBox.RemoveLabel("show_gHelp");
+            //this.modMenuBox.RemoveLabel("skp_Erron");
+            //this.modMenuBox.RemoveLabel("fillerRA");
             //this.modMenuBox.RemoveLabel("cust-trigs");
-            //this.modMenuBox.RemoveLabel("fillerR");
+            //this.modMenuBox.RemoveLabel("fillerRB");
             this.modMenuBox.RemoveLabel("info-TimerD");
             this.modMenuBox.RemoveLabel("info-TimerU");
             this.modMenuBox.RemoveLabel("grow-vertical");
+            this.modMenuBox.RemoveLabel("mid-lineL");
+            this.modMenuBox.RemoveLabel("mid-lineR");
+            this.modMenuBox.RemoveLabel("pos-Left");
+            this.modMenuBox.RemoveLabel("pos-Rght");
+            this.modMenuBox.RemoveLabel("pos-Up");
+            this.modMenuBox.RemoveLabel("pos-Dwn");
+            this.modMenuBox.RemoveLabel("fnt-SizeD");
+            this.modMenuBox.RemoveLabel("fnt-SizeU");
+            this.modMenuBox.RemoveLabel("con-Enable");
+            this.modMenuBox.RemoveLabel("fillerRC");
             this.modMenuBox.RemoveLabel("end-lineL");
             this.modMenuBox.RemoveLabel("end-lineR");
-        }
-
-        void TTReset(string p_sender)
-        {
-            DebugOut.Log(this.GetType().Name + " TTReset: " + p_sender);
         }
 
         void Start()
         {
             //DebugOut.Log(this.GetType().Name + " Start: ");
-
-            this.SetupButtonStrings();
-
-            this.modMenuBox = ModMenu.Instance.RegisterModMaker("dwg", "DeadWalking");
-
-            this.modMenuBox.AddLabel("strt-lineL", LabelType.Text, this.lableLine, Side.left, () => Main.enabled, true, (b) => this.lameBool = b, 99);
-            this.modMenuBox.AddLabel("strt-lineR", LabelType.Text, this.lableLine, Side.right, () => Main.enabled, true, (b) => this.lameBool = b, 99);
-
-            this.labelTglTrack = this.modMenuBox.AddLabel("do-trackTricks", LabelType.Toggle, this.titleWithKey, Side.left, () => Main.enabled, Main.settings.do_TrackTricks, (b) => Main.settings.do_TrackTricks = b, 98);
-            this.labelAtLanding = this.modMenuBox.AddLabel("at-trickLanding", LabelType.Toggle, this.tricksAtLanding, Side.left, () => Main.enabled, Main.settings.at_TrickLanding, (b) => Main.settings.at_TrickLanding = b, 97);
-            this.labelshowGHelp = this.modMenuBox.AddLabel("show_gHelp", LabelType.Toggle, this.showGhelp, Side.left, () => Main.enabled, Main.settings.show_ghelpers, (b) => Main.settings.show_ghelpers = b, 96);
-            //this.labelCustomTrigs = this.modMenuBox.AddLabel("cust-trigs", LabelType.Toggle, this.customTrigs, Side.left, () => Main.enabled, Main.settings.use_custTrigs, (b) => Main.settings.use_custTrigs = b, 95);
-
-            this.labelTimerD = this.modMenuBox.AddLabel("info-TimerD", LabelType.Toggle, this.textTimerD, Side.right, () => Main.enabled, true, (b) => this.SetTimerDwn(b), 98);
-            this.labelTimerU = this.modMenuBox.AddLabel("info-TimerU", LabelType.Toggle, this.textTimerU, Side.right, () => Main.enabled, true, (b) => this.SetTimerUp(b), 97);
-            this.labelVertHorz = this.modMenuBox.AddLabel("grow-vertical", LabelType.Toggle, this.trackerGrow, Side.right, () => Main.enabled, Main.settings.grow_Vertical, (b) => Main.settings.grow_Vertical = b, 96);
-            //this.modMenuBox.AddLabel("fillerR", LabelType.Text, "", Side.right, () => Main.enabled, true, (b) => this.lameBool = b, 95);
-
-            this.modMenuBox.AddLabel("end-lineL", LabelType.Text, this.lableLine, Side.left, () => Main.enabled, true, (b) => this.lameBool = b, 50);
-            this.modMenuBox.AddLabel("end-lineR", LabelType.Text, this.lableLine, Side.right, () => Main.enabled, true, (b) => this.lameBool = b, 50);
 
             if (this.plyrInfo == null)
             {
@@ -170,6 +197,41 @@ namespace DWG_TT
                 this.guiMan = this.gameObject.AddComponent(typeof(GUIM)) as GUIM;
                 this.guiMan.enabled = true;
             };
+
+            this.SetupButtonStrings();
+
+            this.modMenuBox = ModMenu.Instance.RegisterModMaker("dwg", "DeadWalking");
+
+            this.modMenuBox.AddLabel("strt-lineL", LabelType.Text, this.lableLine, Side.left, () => Main.enabled, true, (b) => this.lameBool = b, 99);
+            this.modMenuBox.AddLabel("strt-lineR", LabelType.Text, this.lableLine, Side.right, () => Main.enabled, true, (b) => this.lameBool = b, 99);
+
+            this.labelTglTrack = this.modMenuBox.AddLabel("do-trackTricks", LabelType.Toggle, this.titleWithKey, Side.left, () => Main.enabled, Main.settings.do_TrackTricks, (b) => Main.settings.do_TrackTricks = b, 98);
+            this.labelAtLanding = this.modMenuBox.AddLabel("at-trickLanding", LabelType.Toggle, this.tricksAtLanding, Side.left, () => Main.enabled, Main.settings.at_TrickLanding, (b) => Main.settings.at_TrickLanding = b, 97);
+            this.labelshowGHelp = this.modMenuBox.AddLabel("show_gHelp", LabelType.Toggle, this.showGhelp, Side.left, () => Main.enabled, Main.settings.show_ghelpers, (b) => Main.settings.show_ghelpers = b, 96);
+            //this.labelSkpErroneous = this.modMenuBox.AddLabel("skp-Erron", LabelType.Toggle, this.trackerSkpErroneous, Side.left, () => Main.enabled, Main.settings.skp_Erron, (b) => Main.settings.skp_Erron = !b, 95);
+            //this.labelCustomTrigs = this.modMenuBox.AddLabel("cust-trigs", LabelType.Toggle, this.customTrigs, Side.left, () => Main.enabled, Main.settings.use_custTrigs, (b) => Main.settings.use_custTrigs = b, 94);
+
+            this.labelTimerD = this.modMenuBox.AddLabel("info-TimerD", LabelType.Toggle, this.textTimerD, Side.right, () => Main.enabled, true, (b) => this.SetTimerDwn(b), 98);
+            this.labelTimerU = this.modMenuBox.AddLabel("info-TimerU", LabelType.Toggle, this.textTimerU, Side.right, () => Main.enabled, true, (b) => this.SetTimerUp(b), 97);
+            this.labelVertHorz = this.modMenuBox.AddLabel("grow-vertical", LabelType.Toggle, this.trackerGrow, Side.right, () => Main.enabled, Main.settings.grow_Vertical, (b) => Main.settings.grow_Vertical = b, 96);
+            //this.modMenuBox.AddLabel("fillerRA", LabelType.Text, this.lableFiller, Side.right, () => Main.enabled, true, (b) => this.lameBool = b, 95);
+            //this.modMenuBox.AddLabel("fillerRB", LabelType.Text, this.lableFiller, Side.right, () => Main.enabled, true, (b) => this.lameBool = b, 94);
+
+            this.modMenuBox.AddLabel("mid-lineL", LabelType.Text, this.lableLine, Side.left, () => Main.enabled, true, (b) => this.lameBool = b, 79);
+            this.modMenuBox.AddLabel("mid-lineR", LabelType.Text, this.lableLine, Side.right, () => Main.enabled, true, (b) => this.lameBool = b, 79);
+
+            this.labelPosL = this.modMenuBox.AddLabel("pos-Left", LabelType.Toggle, this.trackerPosL, Side.left, () => Main.enabled, true, (b) => this.SetPosL(b), 78);
+            this.labelPosU= this.modMenuBox.AddLabel("pos-Up", LabelType.Toggle, this.trackerPosU, Side.left, () => Main.enabled, true, (b) => this.SetPosU(b), 77);
+            this.labelFntSzeD = this.modMenuBox.AddLabel("fnt-SizeD", LabelType.Toggle, this.trackerFntSzeD, Side.left, () => Main.enabled, true, (b) => this.SetFntSzeD(b), 76);
+            this.labelConEnable = this.modMenuBox.AddLabel("con-Enable", LabelType.Toggle, this.trackerConEnable, Side.left, () => Main.enabled, Main.settings.con_Enable, (b) => Main.settings.con_Enable = b, 75);
+
+            this.labelPosR = this.modMenuBox.AddLabel("pos-Rght", LabelType.Toggle, this.trackerPosR, Side.right, () => Main.enabled, true, (b) => this.SetPosR(b), 78);
+            this.labelPosD = this.modMenuBox.AddLabel("pos-Dwn", LabelType.Toggle, this.trackerPosD, Side.right, () => Main.enabled, true, (b) => this.SetPosD(b), 77);
+            this.labelFntSzeU = this.modMenuBox.AddLabel("fnt-SizeU", LabelType.Toggle, this.trackerFntSzeU, Side.right, () => Main.enabled, true, (b) => this.SetFntSzeU(b), 76);
+            this.modMenuBox.AddLabel("fillerRC", LabelType.Text, this.lableFiller, Side.right, () => Main.enabled, true, (b) => this.lameBool = b, 75);
+
+            this.modMenuBox.AddLabel("end-lineL", LabelType.Text, this.lableLine, Side.left, () => Main.enabled, true, (b) => this.lameBool = b, 50);
+            this.modMenuBox.AddLabel("end-lineR", LabelType.Text, this.lableLine, Side.right, () => Main.enabled, true, (b) => this.lameBool = b, 50);
         }
 
         void LateUpdate()
@@ -186,6 +248,15 @@ namespace DWG_TT
             this.tricksAtLanding = "(Ctrl+" + this.keyNames[this.ttLanding] + ") Display at Landing(Experimental)";
             this.showGhelp = "(Ctrl+" + this.keyNames[this.ttGHelp] + ") Display Grind Trainers";
             this.customTrigs = "(Ctrl+" + this.keyNames[this.ttCtrigs] + ") Experimental Grind Triggers";
+            this.trackerPosL = "Move Left";
+            this.trackerPosR = "Move Right";
+            this.trackerPosU = "Move Up";
+            this.trackerPosD = "Move Down";
+            this.trackerFntSzeU = "Font Size Smaller";
+            this.trackerFntSzeD = "Font Size Larger";
+            this.trackerSkpErroneous = "Display Excessive Tricks";
+            this.trackerConEnable = "Display Tracker Data";
+            this.lableFiller = "                                                      ";
             this.lableLine = "------------------------------------------------------";
         }
 
@@ -213,6 +284,53 @@ namespace DWG_TT
         //    ModMenu.Instance.ShowMessage(this.trackerTitle + " Extend: " + (Main.settings.grow_Vertical ? "Vertical" : "Horizontal"));
         //}
 
+        private void SendTrackerUpdate(string p_update)
+        {
+            if (this.guiMan.GuiTrck.TrackedTricks.Length == 0)
+            {
+                this.guiMan.GuiTrck.AddTrick(p_update);
+            }
+        }
+
+        private void SetPosL(bool p_bool)
+        {
+            Main.settings.tt_borderX += GUITrick.ttBorder;
+            this.SendTrackerUpdate("Moved");
+            this.labelPosL.SetToggleValue(true);
+        }
+        private void SetPosR(bool p_bool)
+        {
+            Main.settings.tt_borderX -= ((Main.settings.tt_borderX - GUITrick.ttBorder) < 0 ? 0 : GUITrick.ttBorder);
+            this.SendTrackerUpdate("Moved");
+            this.labelPosR.SetToggleValue(true);
+        }
+        private void SetPosU(bool p_bool)
+        {
+            Main.settings.tt_borderY += GUITrick.ttBorder;
+            this.SendTrackerUpdate("Moved");
+            this.labelPosU.SetToggleValue(true);
+        }
+        private void SetPosD(bool p_bool)
+        {
+            Main.settings.tt_borderY -= ((Main.settings.tt_borderY - GUITrick.ttBorder) < 0 ? 0 : GUITrick.ttBorder);
+            this.SendTrackerUpdate("Moved");
+            this.labelPosD.SetToggleValue(true);
+        }
+        private void SetFntSzeD(bool p_bool)
+        {
+            Main.settings.tt_fontSize += 1;
+            this.guiMan.GuiTrck.TTFontSize = Main.settings.tt_fontSize;
+            this.guiMan.GuiTrck.AddTrick("Font Size: " + this.guiMan.GuiTrck.TTFontSize);
+            this.labelFntSzeD.SetToggleValue(true);
+        }
+        private void SetFntSzeU(bool p_bool)
+        {
+            Main.settings.tt_fontSize -= ((Main.settings.tt_fontSize - 1) < 14 ? 0 : 1);
+            this.guiMan.GuiTrck.TTFontSize = Main.settings.tt_fontSize;
+            this.guiMan.GuiTrck.AddTrick("Font Size: " + this.guiMan.GuiTrck.TTFontSize);
+            this.labelFntSzeU.SetToggleValue(true);
+        }
+
         private void CheckButtons()
         {
             if (Main.enabled && Input.GetKey(KeyCode.LeftControl))
@@ -220,14 +338,14 @@ namespace DWG_TT
                 ModMenu.Instance.KeyPress(this.ttEnable, 0.2f, () =>
                 {
                     Main.settings.do_TrackTricks = !Main.settings.do_TrackTricks;
-                    this.labelshowGHelp.SetToggleValue(Main.settings.do_TrackTricks);
+                    this.labelTglTrack.SetToggleValue(Main.settings.do_TrackTricks);
                     ModMenu.Instance.ShowMessage(this.trackerTitle + (Main.settings.do_TrackTricks ? ": Enabled" : ": Disabled"));
                 });
 
                 ModMenu.Instance.KeyPress(this.ttLanding, 0.2f, () =>
                 {
                     Main.settings.at_TrickLanding = !Main.settings.at_TrickLanding;
-                    this.labelshowGHelp.SetToggleValue(Main.settings.at_TrickLanding);
+                    this.labelAtLanding.SetToggleValue(Main.settings.at_TrickLanding);
                     ModMenu.Instance.ShowMessage(this.trackerTitle + " Place Tricks at Contact" + (Main.settings.at_TrickLanding ? ": Enabled" : ": Disabled"));
                 });
 
