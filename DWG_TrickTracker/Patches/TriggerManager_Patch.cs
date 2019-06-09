@@ -5,13 +5,26 @@ using UnityEngine;
 
 namespace DWG_TT
 {
+    [HarmonyPatch(typeof(BoardController), "FixedUpdate")]
+    static public class BoardCon
+    {
+        static private bool[] _wheelsDown = new bool[4] { false, false, false, false };
+        static public bool GetWheelDown(int p_wId) { return _wheelsDown[p_wId]; }
+        [HarmonyPriority(999)]
+        static void Postfix(BoardController __instance, ref bool[] ____wheelsDown)
+        {
+            if (!Main.settings.do_TrackTricks) { return; };
+            _wheelsDown = ____wheelsDown;
+        }
+    }
+
     [HarmonyPatch(typeof(GrindTrigger), "OnTriggerEnter")]
     static public class GrndTrigEnter
     {
         [HarmonyPriority(999)]
         static void Postfix(GrindTrigger __instance)
         {
-            if (Main.settings.use_custTrigs || !Main.settings.do_TrackTricks) { return; };
+            if (!Main.settings.do_TrackTricks) { return; };
             if (__instance.Colliding)
             {
                 //GrndTrigs.Hit[GrndTrigs.TrigByName(__instance.name)] = (__instance.name == "Board Trigger" && (GrndTrigs.Hit[GrndTrigs.NTrig] || GrndTrigs.Hit[GrndTrigs.TTrig]) ? false : __instance.Colliding);
@@ -26,7 +39,7 @@ namespace DWG_TT
         [HarmonyPriority(999)]
         static void Postfix(GrindTrigger __instance)
         {
-            if (Main.settings.use_custTrigs || !Main.settings.do_TrackTricks) { return; };
+            if (!Main.settings.do_TrackTricks) { return; };
             if (__instance.Colliding)
             {
                 //GrndTrigs.Hit[GrndTrigs.TrigByName(__instance.name)] = (__instance.name == "Board Trigger" && (GrndTrigs.Hit[GrndTrigs.NTrig] || GrndTrigs.Hit[GrndTrigs.TTrig]) ? false : __instance.Colliding);
@@ -41,7 +54,7 @@ namespace DWG_TT
         [HarmonyPriority(999)]
         static void Postfix(GrindTrigger __instance)
         {
-            if (Main.settings.use_custTrigs || !Main.settings.do_TrackTricks) { return; };
+            if (!Main.settings.do_TrackTricks) { return; };
             GrndTrigs.Hit[GrndTrigs.TrigByName(__instance.name)] = false;
         }
     }

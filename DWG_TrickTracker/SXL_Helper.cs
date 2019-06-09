@@ -28,13 +28,12 @@ namespace DWG_TT
         static public bool IsSwitch { get { return PlayerController.Instance.IsSwitch; } }
         static public bool IsBrdFwd { get { return !PlayerController.Instance.GetBoardBackwards(); } }
 
-        static public bool FrntSide { get { return (PlayerController.Instance.boardController.triggerManager.grindDetection.grindSide == GrindDetection.GrindSide.Frontside); } }
-        static public bool BackSide { get { return (PlayerController.Instance.boardController.triggerManager.grindDetection.grindSide == GrindDetection.GrindSide.Backside); } }
         static public bool LeftPop { get { return PlayerController.Instance.inputController.LeftStick.IsPopStick; ; } }
         static public bool RightPop { get { return PlayerController.Instance.inputController.RightStick.IsPopStick; ; } }
 
         static public bool AllDown { get { return PlayerController.Instance.boardController.AllDown; } }
         static public bool TwoDown { get { return PlayerController.Instance.TwoWheelsDown(); } }
+        static public bool AxlDown { get { return PlayerController.Instance.boardController.AnyAxleOffGround; } }
 
         static public Vector3 SktrEul { get { return PlayerController.Instance.skaterController.skaterTransform.eulerAngles; } }
         static public Vector3 SktrEulLoc { get { return PlayerController.Instance.skaterController.skaterTransform.localEulerAngles; } }
@@ -50,6 +49,20 @@ namespace DWG_TT
         static public Vector3 BrdUp { get { return PlayerController.Instance.boardController.boardTransform.up; } }
         static public Vector3 BrdTargPos { get { return PlayerController.Instance.boardController.boardTargetPosition.position; } }
 
+        static public bool FlipTrigs { get { return ((!SXLH.IsSwitch && SXLH.IsBrdFwd) || (SXLH.IsSwitch && !SXLH.IsBrdFwd)); } }
+        static public Vector3 BrdDirTwk { get { return FlipTrigs ? BrdFwd : -BrdFwd; } }
+        static public Vector3 BrdEdgeFwd { get { return (IsBrdFwd && IsReg || !IsBrdFwd && IsGoofy ? BrdFwd : -BrdFwd); } }
+
+        // Don't call any these if character is not grinding
+        // Doesn't necessarily break, but it will spam the log file the entire time a grind is not occuring
+        // Resulting in progressivly slower performance (RAM Leak essentially) and Definitely a game crash.
+        // My 16GB can handle it failry well. It never crashed from it, but I noticed the perfoamnce issues, which made me look at the log file, and closed the game before it could crash.
+
+        static public string GrndSide { get { return PlayerController.Instance.boardController.triggerManager.sideEnteredGrind.ToString(); } }
+
+        static public bool FrntSide { get { return (PlayerController.Instance.boardController.triggerManager.grindDetection.grindSide == GrindDetection.GrindSide.Frontside); } }
+        static public bool BackSide { get { return (PlayerController.Instance.boardController.triggerManager.grindDetection.grindSide == GrindDetection.GrindSide.Backside); } }
+
         static public bool TrigManIsColl { get { return PlayerController.Instance.boardController.triggerManager.IsColliding; } }
         static public Vector3 GrindSplnPos { get { return PlayerController.Instance.boardController.triggerManager.grindContactSplinePosition.position; } }
         static public Vector3 GrindSplnFwd { get { return PlayerController.Instance.boardController.triggerManager.grindContactSplinePosition.forward; } }
@@ -58,8 +71,19 @@ namespace DWG_TT
         static public Vector3 GrindDir { get { return PlayerController.Instance.boardController.triggerManager.grindDirection; } }
         static public Vector3 GrindUp { get { return PlayerController.Instance.boardController.triggerManager.grindUp; } }
 
-        static public bool FlipTrigs { get { return ((!SXLH.IsSwitch && SXLH.IsBrdFwd) || (SXLH.IsSwitch && !SXLH.IsBrdFwd)); } }
-        static public Vector3 BrdDirTwk { get { return FlipTrigs ? BrdFwd : -BrdFwd; } }
-        static public Vector3 BrdEdgeFwd { get { return (IsBrdFwd && IsReg || !IsBrdFwd && IsGoofy ? BrdFwd : -BrdFwd); } }
+        static public float GrindSplLngt
+        {
+            get
+            {
+                Dreamteck.Splines.SplinePoint[] splnPnts = PlayerController.Instance.boardController.triggerManager.spline.GetPoints();
+                return Vector3.Distance(splnPnts[0].position, splnPnts[(splnPnts.Length - 1)].position);
+            }
+        }
+
+        static public bool NearEndGrind(Vector3 p_brdPos)
+        {
+            Dreamteck.Splines.SplinePoint[] splnPnts = PlayerController.Instance.boardController.triggerManager.spline.GetPoints();
+            return (((Vector3.Distance(splnPnts[0].position, p_brdPos) * 100) < 30) || ((Vector3.Distance(splnPnts[(splnPnts.Length - 1)].position, p_brdPos) * 100) < 30));
+        }
     }
 }

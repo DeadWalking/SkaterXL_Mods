@@ -30,8 +30,9 @@ namespace DWG_TT
             trackedTime = 0f;
 
             tricks = new GUIContent("");
-            tricksStyle = GUI.skin.box;
+            tricksStyle = new GUIStyle("box");
             tricksSize = Vector2.zero;
+            tricksStyle.fontSize = Main.settings.tt_fontSize;
         }
 
         void LateUpdate()
@@ -76,17 +77,8 @@ namespace DWG_TT
         private GM grndMan;
 
         private GrndTrainr[] grndTranrs = new GrndTrainr[10];
-        private SplnToTrigMark[] splnTrckrs = new SplnToTrigMark[5];
-        private RayCastTrigLines[] lfTrckrs = new RayCastTrigLines[5];
-        private RayCastTrigLines[] lrTrckrs = new RayCastTrigLines[5];
-        private RayCastTrigLines[] rfTrckrs = new RayCastTrigLines[5];
-        private RayCastTrigLines[] rrTrckrs = new RayCastTrigLines[5];
 
         private bool showGHelp = false; public bool GrndTrainers { get { return this.showGHelp; } }
-        private bool makeSplnMarks = false;
-        private bool showSplnMarks = false; public bool SplnMarks { get { return this.showSplnMarks; } }
-        private bool makeRayLines = false;
-        private bool showRayLines = false; public bool RayLines { get { return this.showRayLines; } }
 
         private GUIContent consoleCont;
         private GUIStyle consoleStyle;
@@ -99,8 +91,6 @@ namespace DWG_TT
             //DebugOut.Log(this.GetType().Name + " OnEnable: ");
             this.frmTime = 0f;
             this.showGHelp = true;
-            this.makeSplnMarks = false;
-            this.makeRayLines = false;
         }
 
         public void GuiReset()
@@ -160,125 +150,71 @@ namespace DWG_TT
             }
             if (!this.showGHelp && !Main.settings.show_ghelpers) { this.showGHelp = true; }
 
-            if (Main.settings.use_custTrigs && this.showSplnMarks && this.makeSplnMarks)
-            {
-                this.makeSplnMarks = false;
-                for (int i = 0; i < 5; i++)
-                {
-                    GameObject splnCollObj = new GameObject();
-                    splnCollObj.transform.parent = this.gameObject.transform;
-                    SplnToTrigMark splnColl = splnCollObj.AddComponent<SplnToTrigMark>();
-                    splnColl.Init(i);
-                    this.splnTrckrs[i] = splnColl;
-                }
-            }
-
-            if (Main.settings.use_custTrigs && this.showRayLines && this.makeRayLines)
-            {
-                this.makeRayLines = false;
-                for (int i = 0; i < 5; i++)
-                {
-                    GameObject rrCollObj = new GameObject();
-                    rrCollObj.transform.parent = this.gameObject.transform;
-                    RayCastTrigLines rrColl = rrCollObj.AddComponent<RayCastTrigLines>();
-                    this.rrTrckrs[i] = rrColl;
-
-                    GameObject lrCollObj = new GameObject();
-                    lrCollObj.transform.parent = this.gameObject.transform;
-                    RayCastTrigLines lrColl = lrCollObj.AddComponent<RayCastTrigLines>();
-                    this.lrTrckrs[i] = lrColl;
-
-                    GameObject rfCollObj = new GameObject();
-                    rfCollObj.transform.parent = this.gameObject.transform;
-                    RayCastTrigLines rfColl = rfCollObj.AddComponent<RayCastTrigLines>();
-                    this.rfTrckrs[i] = rfColl;
-
-                    GameObject lfCollObj = new GameObject();
-                    lfCollObj.transform.parent = this.gameObject.transform;
-                    RayCastTrigLines lfColl = lfCollObj.AddComponent<RayCastTrigLines>();
-                    this.lfTrckrs[i] = lfColl;
-
-                    rrColl.Init(i, PlaceType.rrTrig);
-                    rfColl.Init(i, PlaceType.rfTrig);
-                    lrColl.Init(i, PlaceType.lrTrig);
-                    lfColl.Init(i, PlaceType.lfTrig);
-                }
-            }
-
-            if (Input.GetKey(KeyCode.LeftControl) && (Time.time - this.frmTime) > 0.1f)
-            {
-                this.frmTime = Time.time + Time.deltaTime;
-                if (Input.GetKey(KeyCode.Period))
-                {
-                    this.showSplnMarks = !this.showSplnMarks;
-                    this.makeSplnMarks = this.showSplnMarks;
-                }
-                if (Input.GetKey(KeyCode.Comma))
-                {
-                    this.showRayLines = !this.showRayLines;
-                    this.makeRayLines = this.showRayLines;
-                }
-            }
-
             GUI.backgroundColor = Color.black;
             if (Main.settings.con_Enable)
             {
                 if (this.consoleCont == null)
                 {
                     this.consoleCont = new GUIContent("");
-                    this.consoleStyle = GUI.skin.box;
+                    this.consoleStyle = new GUIStyle("box");
                     this.conSize = Vector2.zero;
                 }
 
                 this.consoleStyle.alignment = TextAnchor.UpperLeft;
                 this.consoleCont.text = (
-                    "SplineMakrs:      " + this.showSplnMarks + "\n" +
-                    "RayLines---:      " + this.showRayLines + "\n" + "\n" +
-                    //"SktrEulLast:    X:" + this.plyrInfo.SktrEulLast.x + " Y:" + this.plyrInfo.SktrEulLast.y + " Z:" + this.plyrInfo.SktrEulLast.z + "\n" +
-                    //"BrdEulLast:     X:" + this.plyrInfo.BrdEulLast.x + " Y:" + this.plyrInfo.BrdEulLast.y + " Z:" + this.plyrInfo.BrdEulLast.z + "\n" +
-                    "SktrRot:          " + this.plyrInfo.SktrRot + "\n" +
-                    "SktrRotMax:       " + this.plyrInfo.SktrRotMax + "\n" + "\n" +
-                    "SktrFlip:         " + this.plyrInfo.SktrFlip + "\n" +
-                    "SktrFlipMax:      " + this.plyrInfo.SktrFlipMax + "\n" + "\n" +
-                    "SktrTwk:          " + this.plyrInfo.SktrTwk + "\n" +
-                    "SktrTwkMax:       " + this.plyrInfo.SktrTwkMax + "\n" + "\n" +
-                    "BrdRot:           " + this.plyrInfo.BrdRot + "\n" +
-                    "BrdRotMax:        " + this.plyrInfo.BrdRotMax + "\n" + "\n" +
-                    "BrdFlip:          " + this.plyrInfo.BrdFlip + "\n" +
-                    "BrdFlipMax:       " + this.plyrInfo.BrdFlipMax + "\n" + "\n" +
-                    "BrdTwk:           " + this.plyrInfo.BrdTwk + "\n" +
-                    "BrdTwkMax:        " + this.plyrInfo.BrdTwkMax + "\n" + "\n" +
-                    //"TrigManColl:      " + SXLH.TrigManIsColl + "\n" +
-                    "BrdSpeed---:      " + SXLH.BrdSpeed + "\n" +
-                    "FwdAngle---:      " + this.grndMan.EdgeFwdAngl + "\n" +
-                    "UpAngle----:      " + this.grndMan.EdgeUpAngl + "\n" + "\n" +
-                    "EdgeHght---:      " + this.grndMan.HghtDiff + "\n" + "\n" +
-                    "TrickHght--:      " + this.grndMan.TrickHght + "\n" + "\n" +
-                    "noseTrig:         " + GrndTrigs.Hit[SXLH.FlipTrigs ? GrndTrigs.NTrig : GrndTrigs.TTrig] + "\n" +
-                    "frntTrig:         " + GrndTrigs.Hit[SXLH.FlipTrigs ? GrndTrigs.FTTrig : GrndTrigs.BTTrig] + "\n" +
-                    "brdTrig:          " + GrndTrigs.Hit[GrndTrigs.BrdTrig] + "\n" +
-                    "bckTrig:          " + GrndTrigs.Hit[SXLH.FlipTrigs ? GrndTrigs.BTTrig : GrndTrigs.FTTrig] + "\n" +
-                    "tailTrig:         " + GrndTrigs.Hit[SXLH.FlipTrigs ? GrndTrigs.TTrig : GrndTrigs.NTrig] + "\n" + "\n" +
-                    "CrntState:        " + SXLH.CrntState + "\n" + "\n" +
-                    "Stance-----:      " + (SXLH.IsReg ? "Regular" : "Goofy") + "\n" +
-                    "CrntGrind--:      " + this.grndMan.CrntGrind + "\n" + "\n" +
-                    "FrntSide---:      " + SXLH.FrntSide + "\n" +
-                    "SameSide---:      " + this.grndMan.SameSide + "\n" +
-                    "ToeFwd-----:      " + this.grndMan.ToeFwd + "\n" +
-                    //"IsAbove:          " + (this.grndMan.HghtDiff > 0) + "\n" +
-                    //"AllDown:          " + SXLH.AllDown + "\n" +
-                    "TwoDwn-----:      " + SXLH.TwoDown + "\n" +
-                    "IsSwitch---:      " + SXLH.IsSwitch + "\n" +
-                    "IsBrdFwd---:      " + SXLH.IsBrdFwd + "\n" + "\n" +
-                    "LeftFrnt:         " + this.plyrInfo.LeftFrnt + "\n" +
-                    "LeftPop:          " + SXLH.LeftPop + "\n" + "\n" +
-                    "RightFrnt:        " + this.plyrInfo.RightFrnt + "\n" +
-                    "RightPop:         " + SXLH.RightPop + "\n" + "\n" +
-                    "GetPrefix:        " + this.plyrInfo.GetPrefix(SXLH.CrntState) + "\n" + "\n" +
-                    //"GO Name:          " + PlayerController.Instance.gameObject.name + "\n" +
-                    "MovementMaster:   " + PlayerController.Instance.movementMaster.ToString() + "\n" +
-                    //"Skater RBGOName:      " + PlayerController.Instance.skaterController.skaterRigidbody.gameObject.name + "\n" +
-                    //"Skater BPTag:     " + PlayerController.Instance.skaterController.skaterRigidbody.ToString() + "\n" +
+                    //"SplineMakrs_______:" + this.showSplnMarks + "\n" +
+                    //"RayLines__________:" + this.showRayLines + "\n" + "\n" +
+                    //"SktrEulLast_____X:" + this.plyrInfo.SktrEulLast.x + " Y:" + this.plyrInfo.SktrEulLast.y + " Z:" + this.plyrInfo.SktrEulLast.z + "\n" +
+                    //"BrdEulLast______X:" + this.plyrInfo.BrdEulLast.x + " Y:" + this.plyrInfo.BrdEulLast.y + " Z:" + this.plyrInfo.BrdEulLast.z + "\n" +
+                    "SktrRot___________:" + this.plyrInfo.SktrRot + "\n" +
+                    "SktrRotMax________:" + this.plyrInfo.SktrRotMax + "\n" + "\n" +
+                    "SktrFlip__________:" + this.plyrInfo.SktrFlip + "\n" +
+                    "SktrFlipMax_______:" + this.plyrInfo.SktrFlipMax + "\n" + "\n" +
+                    "SktrTwk___________:" + this.plyrInfo.SktrTwk + "\n" +
+                    "SktrTwkMax________:" + this.plyrInfo.SktrTwkMax + "\n" + "\n" +
+                    "BrdRot____________:" + this.plyrInfo.BrdRot + "\n" +
+                    "BrdRotMax_________:" + this.plyrInfo.BrdRotMax + "\n" + "\n" +
+                    "BrdFlip___________:" + this.plyrInfo.BrdFlip + "\n" +
+                    "BrdFlipMax________:" + this.plyrInfo.BrdFlipMax + "\n" + "\n" +
+                    "BrdTwk____________:" + this.plyrInfo.BrdTwk + "\n" +
+                    "BrdTwkMax_________:" + this.plyrInfo.BrdTwkMax + "\n" + "\n" +
+                    "BrdSpeed__________:" + SXLH.BrdSpeed + "\n" +
+                    "GrndWait__________:" + this.grndMan.SpdAdjst + "\n" +
+                    "GrindSplLngt______:" + this.grndMan.GrindSplLngt + "\n" +
+                    "FwdAngle__________:" + this.grndMan.EdgeFwdAngl + "\n" +
+                    "UpAngle___________:" + this.grndMan.EdgeUpAngl + "\n" +
+                    "EdgeHght__________:" + this.grndMan.HghtDiff + "\n" +
+                    "DistX_____________:" + this.grndMan.DistX + "\n" +
+                    "DistZ_____________:" + this.grndMan.DistZ + "\n" + "\n" +
+                    "AllDwn____________:" + SXLH.AllDown + "\n" +
+                    "TwoDwn____________:" + SXLH.TwoDown + "\n" +
+                    "OneDwn____________:" + this.grndMan.OneDown() + "\n" +
+                    "NoneDwn___________:" + this.grndMan.NoneDown() + "\n" + "\n" +
+                    "FWheels___________:" + this.grndMan.FLWheel + " " + this.grndMan.FRWheel + "\n" +
+                    "NoseTrig__________:" + this.grndMan.NoseTrigg + "\n" +
+                    "FrntTrig__________:" + this.grndMan.FrntTrckTrigg + "\n" +
+                    "BrdTrig___________:" + this.grndMan.BrdTrigg + "\n" +
+                    "BckTrig___________:" + this.grndMan.BckTrckTrigg + "\n" +
+                    "TailTrig__________:" + this.grndMan.TailTrigg + "\n" +
+                    "RWheels___________:" + this.grndMan.RLWheel + " " + this.grndMan.RRWheel + "\n" + "\n" +
+                    "CrntState_________:" + SXLH.CrntState + "\n" + "\n" +
+                    "Stance____________:" + (SXLH.IsReg ? "Regular" : "Goofy") + "\n" +
+                    "CrntGrind_________:" + this.grndMan.CrntGrind + "\n" +
+                    "SideEntr__________:" + this.grndMan.GrndSide + "\n" +
+                    "GrndMetal_________:" + this.grndMan.MetalGrnd + "\n" +
+                    "FrntSide__________:" + SXLH.FrntSide + "\n" +
+                    "BackSide__________:" + SXLH.BackSide + "\n" +
+                    "SideStrt__________:" + this.grndMan.SideStrt + "\n" +
+                    "SameSide__________:" + this.grndMan.SameSide + "\n" +
+                    "ToeFwd____________:" + this.grndMan.ToeFwd + "\n" +
+                    "IsSwitch__________:" + SXLH.IsSwitch + "\n" +
+                    "IsBrdFwd__________:" + SXLH.IsBrdFwd + "\n" + "\n" +
+                    "LeftFrnt__________:" + this.plyrInfo.LeftFrnt + "\n" +
+                    "LeftPop___________:" + SXLH.LeftPop + "\n" + "\n" +
+                    "RightFrnt_________:" + this.plyrInfo.RightFrnt + "\n" +
+                    "RightPop__________:" + SXLH.RightPop + "\n" + "\n" +
+                    "GetPrefix_________:" + this.plyrInfo.GetPrefix(SXLH.CrntState) + "\n" + "\n" +
+                    "MoveMaster________:" + PlayerController.Instance.movementMaster.ToString() + "\n" +
                     ""
                 );
 

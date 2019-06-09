@@ -93,8 +93,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="RayCastTrigLines.cs" />
-    <Compile Include="SplnToTrigMark.cs" />
     <Compile Include="GrindTrainer.cs" />
     <Compile Include="GuiManager.cs" />
     <Compile Include="PlayerInfo.cs" />
@@ -102,13 +100,13 @@
     <Compile Include="Reuseable.cs" />
     <Compile Include="Patches\TriggerManager_Patch.cs" />
     <Compile Include="GrindManager.cs" />
-    <Compile Include="Datapoints.cs" />
     <Compile Include="SceneTrick.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DWG_TrickTracker.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="LICENSE.md" />
     <None Include="Resources\Info.json" />
   </ItemGroup>
   <ItemGroup />

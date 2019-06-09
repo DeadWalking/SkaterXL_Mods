@@ -63,7 +63,7 @@ namespace DWG_TT
             //DebugOut.Log(this.GetType().Name + " PlayerInfo Reset:" + p_sender);
         }
 
-        void FixedUpdate()
+        void LateUpdate()
         {
             if (!Main.enabled || !Main.settings.do_TrackTricks) { return; };
             if (this.guiMan == null)
@@ -117,7 +117,7 @@ namespace DWG_TT
 
                         if (SXLH.CrntState == SXLH.Pop || SXLH.CrntState == SXLH.Released || SXLH.CrntState == SXLH.InAir)
                         {
-                            if (SXLH.CrntState == SXLH.Pop) { this.guiTrck.TrackedTime = chkTime; }
+                            //if (SXLH.CrntState == SXLH.Pop) { this.guiTrck.TrackedTime = chkTime; }
 
                             //Needs trajectory or at least velocity
                             //if (BrdPos.y < (brdPosLast.y - ((brdPosLast.y - BrdPos.y)/0.75f)))
@@ -355,7 +355,6 @@ namespace DWG_TT
             //Alley - oop   Alley - oop A spinning trick on transition that entails spinning to the right while airing to the left, or vice versa
             //Aciddrop	Skating off the end of an object without touching the board with your hands.
             //Burly	A big trick involving lots of potential for pain if it is not pulled off; a skater can be called burly if they are partial to these tricks (Jamie Thomas and his tricks are burly)
-            //Frontside Flip  The name given to a frontside ollie 180 with a kickflip
             //Gap	A distance between two riding surfaces which skaters ollie over, and often do other more sophisticated tricks over
 
             float sktrRotMaxOffset = 60f;
@@ -369,7 +368,9 @@ namespace DWG_TT
             int clampBFlip = this.ClampRot(true, this.brdFlip, brdFlipMaxOffset);
             int clampBFlipMax = this.ClampRot(true, this.brdFlipMax, brdFlipMaxOffset);
 
-            //DebugOut.Log("\n\n\n" +
+            //DebugOut.Log
+            //(
+            //    "\n\n\n" +
             //    "IsBrdFwd = " + SXLH.IsBrdFwd + " : IsSwitch = " + SXLH.IsSwitch + "\n" +
             //    "sktrRotMax = " + this.sktrRotMax + " : this.sktrRot = " + this.sktrRot + "\n" +
             //    "brdRotMax = " + this.brdRotMax + " : this.brdRot = " + this.brdRot + "\n" +
@@ -379,15 +380,8 @@ namespace DWG_TT
             //    "clampBFlipMax = " + clampBFlipMax + " : clampBFlip = " + clampBFlip + "\n\n\n" +
             //    "forced this should be 180? (clampBFlipMax % 360) = " + (clampBFlipMax % 360) + "\n" +
             //    "impcaspFlip = ((clampBFlipMax == 0) && (Mathf.Abs(this.brdFlipMax) > 90f)) = " + ((clampBFlipMax == 0) && (Mathf.Abs(this.brdFlipMax) > 90f)) + "\n" +
-            //    "IsCurrentGrindMetal = " + PlayerController.Instance.IsCurrentGrindMetal() + "\n" +
-            //    "IsRightStick = " + PlayerController.Instance.playerSM.GetPopStickSM().IsRightStick + "\n" +
-            //    "IsFrontFoot = " + PlayerController.Instance.playerSM.GetPopStickSM().IsFrontFoot + "\n\n\n"
-            //    );
-            //DebugOut.Log("\n" +
-            //    "IsBrdFwd = " + SXLH.IsBrdFwd + " : IsSwitch = " + SXLH.IsSwitch + "\n" +
-            //    "IsRightStick = " + PlayerController.Instance.playerSM.GetPopStickSM().IsRightStick + "\n" +
-            //    "IsFrontFoot = " + PlayerController.Instance.playerSM.GetPopStickSM().IsFrontFoot + "\n"
-            //    );
+            //    "\n\n\n"
+            //);
 
             string trickPrefix = this.GetPrefix(SXLH.InAir);
 
@@ -515,13 +509,13 @@ namespace DWG_TT
                         }
                         else if (clampBRotMax == clampBFlipMax)
                         {
-                            bodyOut = dtqFlip + (dolphinAngle ? "Ghetto Bird" : "Follow " + "Flip");
+                            bodyOut = dtqFlip + "Follow " + "Flip";
                             skpBrdRot = true;
                             skpBrdFlip = true;
                         }
                         else if ((clampBFlipMax - clampBRotMax) == (clampBFlipMax / 2))
                         {
-                            bodyOut = dtqFlip + "Techno " + "Flip";
+                            bodyOut = dtqFlip + /*(lateSpin ? "Ghetto Bird" : "") +*/ "Techno " + "Flip";
                             skpBrdRot = true;
                             skpBrdFlip = true;
                         }
@@ -555,7 +549,7 @@ namespace DWG_TT
                         trickPrefix = "";
                         skpBrdRot = true;
                     }
-                    else
+                    else if (clampSRotMax != 0 && clampSRotMax != clampBRotMax)
                     {
                         bodyOut = (kick || heel ? "" : "Twisted ") + clampSRotMax + (kick || heel ? " Sex Change" : "");
                         //if (Main.settings.skp_Erron)
@@ -574,7 +568,7 @@ namespace DWG_TT
             }
             else if (didShuv && !didFlip)
             {
-                flipOut = (!skpBrdRot ? (clampBRotMax >= 360 ? clampBRotMax.ToString() + " " : "") + "Shove It" : "");
+                flipOut = (!skpBrdRot ? (clampBRotMax >= 360 ? clampBRotMax.ToString() + " " : "") + ((!sameDir || clampSRotMax != clampBRotMax) ? "Shove It" : ""): "");
             }
             else if (didShuv && didFlip)
             {
@@ -608,7 +602,7 @@ namespace DWG_TT
                 }
                 else
                 {
-                    flipOut = (!skpBrdRot ? (clampBRotMax >= 360? clampBRotMax.ToString() + " " : "") + "Shove It" + (flipType.Length > 0 ? " " : ""): "") + dtqFlip + flipType;
+                    flipOut = (!skpBrdRot ? (clampBRotMax >= 360? clampBRotMax.ToString() + " " : "") + ((!sameDir || clampSRotMax != clampBRotMax) ? "Shove It" : "") + (flipType.Length > 0 ? " " : ""): "") + dtqFlip + flipType;
                     //if (Main.settings.skp_Erron)
                     //{
                     //    skpBrdRot = true;
