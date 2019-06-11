@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace DWG_TT
 {
@@ -162,59 +163,58 @@ namespace DWG_TT
 
                 this.consoleStyle.alignment = TextAnchor.UpperLeft;
                 this.consoleCont.text = (
-                    //"SplineMakrs_______:" + this.showSplnMarks + "\n" +
-                    //"RayLines__________:" + this.showRayLines + "\n" + "\n" +
-                    //"SktrEulLast_____X:" + this.plyrInfo.SktrEulLast.x + " Y:" + this.plyrInfo.SktrEulLast.y + " Z:" + this.plyrInfo.SktrEulLast.z + "\n" +
-                    //"BrdEulLast______X:" + this.plyrInfo.BrdEulLast.x + " Y:" + this.plyrInfo.BrdEulLast.y + " Z:" + this.plyrInfo.BrdEulLast.z + "\n" +
-                    "SktrRot___________:" + this.plyrInfo.SktrRot + "\n" +
-                    "SktrRotMax________:" + this.plyrInfo.SktrRotMax + "\n" + "\n" +
-                    "SktrFlip__________:" + this.plyrInfo.SktrFlip + "\n" +
-                    "SktrFlipMax_______:" + this.plyrInfo.SktrFlipMax + "\n" + "\n" +
-                    "SktrTwk___________:" + this.plyrInfo.SktrTwk + "\n" +
-                    "SktrTwkMax________:" + this.plyrInfo.SktrTwkMax + "\n" + "\n" +
-                    "BrdRot____________:" + this.plyrInfo.BrdRot + "\n" +
-                    "BrdRotMax_________:" + this.plyrInfo.BrdRotMax + "\n" + "\n" +
-                    "BrdFlip___________:" + this.plyrInfo.BrdFlip + "\n" +
-                    "BrdFlipMax________:" + this.plyrInfo.BrdFlipMax + "\n" + "\n" +
-                    "BrdTwk____________:" + this.plyrInfo.BrdTwk + "\n" +
-                    "BrdTwkMax_________:" + this.plyrInfo.BrdTwkMax + "\n" + "\n" +
-                    "BrdSpeed__________:" + SXLH.BrdSpeed + "\n" +
-                    "GrndWait__________:" + this.grndMan.SpdAdjst + "\n" +
-                    "GrindSplLngt______:" + this.grndMan.GrindSplLngt + "\n" +
-                    "FwdAngle__________:" + this.grndMan.EdgeFwdAngl + "\n" +
-                    "UpAngle___________:" + this.grndMan.EdgeUpAngl + "\n" +
-                    "EdgeHght__________:" + this.grndMan.HghtDiff + "\n" +
-                    "DistX_____________:" + this.grndMan.DistX + "\n" +
-                    "DistZ_____________:" + this.grndMan.DistZ + "\n" + "\n" +
-                    "AllDwn____________:" + SXLH.AllDown + "\n" +
-                    "TwoDwn____________:" + SXLH.TwoDown + "\n" +
-                    "OneDwn____________:" + this.grndMan.OneDown() + "\n" +
-                    "NoneDwn___________:" + this.grndMan.NoneDown() + "\n" + "\n" +
-                    "FWheels___________:" + this.grndMan.FLWheel + " " + this.grndMan.FRWheel + "\n" +
-                    "NoseTrig__________:" + this.grndMan.NoseTrigg + "\n" +
-                    "FrntTrig__________:" + this.grndMan.FrntTrckTrigg + "\n" +
-                    "BrdTrig___________:" + this.grndMan.BrdTrigg + "\n" +
-                    "BckTrig___________:" + this.grndMan.BckTrckTrigg + "\n" +
-                    "TailTrig__________:" + this.grndMan.TailTrigg + "\n" +
-                    "RWheels___________:" + this.grndMan.RLWheel + " " + this.grndMan.RRWheel + "\n" + "\n" +
-                    "CrntState_________:" + SXLH.CrntState + "\n" + "\n" +
-                    "Stance____________:" + (SXLH.IsReg ? "Regular" : "Goofy") + "\n" +
-                    "CrntGrind_________:" + this.grndMan.CrntGrind + "\n" +
-                    "SideEntr__________:" + this.grndMan.GrndSide + "\n" +
-                    "GrndMetal_________:" + this.grndMan.MetalGrnd + "\n" +
-                    "FrntSide__________:" + SXLH.FrntSide + "\n" +
-                    "BackSide__________:" + SXLH.BackSide + "\n" +
-                    "SideStrt__________:" + this.grndMan.SideStrt + "\n" +
-                    "SameSide__________:" + this.grndMan.SameSide + "\n" +
-                    "ToeFwd____________:" + this.grndMan.ToeFwd + "\n" +
-                    "IsSwitch__________:" + SXLH.IsSwitch + "\n" +
-                    "IsBrdFwd__________:" + SXLH.IsBrdFwd + "\n" + "\n" +
-                    "LeftFrnt__________:" + this.plyrInfo.LeftFrnt + "\n" +
-                    "LeftPop___________:" + SXLH.LeftPop + "\n" + "\n" +
-                    "RightFrnt_________:" + this.plyrInfo.RightFrnt + "\n" +
-                    "RightPop__________:" + SXLH.RightPop + "\n" + "\n" +
-                    "GetPrefix_________:" + this.plyrInfo.GetPrefix(SXLH.CrntState) + "\n" + "\n" +
-                    "MoveMaster________:" + PlayerController.Instance.movementMaster.ToString() + "\n" +
+                    //"SktrEulLast X:" + this.plyrInfo.SktrEulLast.x + " Y:" + this.plyrInfo.SktrEulLast.y + " Z:" + this.plyrInfo.SktrEulLast.z + "\n" +
+                    //" BrdEulLast X:" + this.plyrInfo.BrdEulLast.x + " Y:" + this.plyrInfo.BrdEulLast.y + " Z:" + this.plyrInfo.BrdEulLast.z + "\n" +
+                    " SktrRot : " + this.plyrInfo.SktrRot + "\n" +
+                    " SktrRotMax : " + this.plyrInfo.SktrRotMax + "\n" + "\n" +
+                    " SktrFlip : " + this.plyrInfo.SktrFlip + "\n" +
+                    " SktrFlipMax : " + this.plyrInfo.SktrFlipMax + "\n" + "\n" +
+                    " SktrTwk : " + this.plyrInfo.SktrTwk + "\n" +
+                    " SktrTwkMax : " + this.plyrInfo.SktrTwkMax + "\n" + "\n" +
+                    " BrdRot : " + this.plyrInfo.BrdRot + "\n" +
+                    " BrdRotMax : " + this.plyrInfo.BrdRotMax + "\n" + "\n" +
+                    " BrdFlip : " + this.plyrInfo.BrdFlip + "\n" +
+                    " BrdFlipMax : " + this.plyrInfo.BrdFlipMax + "\n" + "\n" +
+                    " BrdTwk : " + this.plyrInfo.BrdTwk + "\n" +
+                    " BrdTwkMax : " + this.plyrInfo.BrdTwkMax + "\n" + "\n" +
+                    " BrdSpeed : " + SXLH.BrdSpeed + "\n" +
+                    " GrndWait : " + this.grndMan.SpdAdjst + "\n" +
+                    " GrindSplLngt : " + (this.grndMan.GrindLngt / 100) + "\n" +
+                    " GrndLeft : " + this.grndMan.GrndLeft + "\n" + "\n" +
+                    " FwdAngle : " + this.grndMan.EdgeFwdAngl + "\n" +
+                    " UpAngle : " + this.grndMan.EdgeUpAngl + "\n" +
+                    " EdgeHght : " + this.grndMan.HghtDiff + "\n" +
+                    " DistX : " + this.grndMan.DistX + "\n" +
+                    " DistZ : " + this.grndMan.DistZ + "\n" + "\n" +
+                    " AllDwn : " + SXLH.AllDown + "\n" +
+                    " TwoDwn : " + SXLH.TwoDown + "\n" +
+                    " OneDwn : " + this.grndMan.OneDown() + "\n" +
+                    " NoneDwn : " + this.grndMan.NoneDown() + "\n" + "\n" +
+                    " FWheels : " + this.grndMan.FLWheel + " " + this.grndMan.FRWheel + "\n" +
+                    " NoseTrig : " + this.grndMan.NoseTrigg + "\n" +
+                    " FrntTrig : " + this.grndMan.FrntTrckTrigg + "\n" +
+                    " BrdTrig : " + this.grndMan.BrdTrigg + "\n" +
+                    " BckTrig : " + this.grndMan.BckTrckTrigg + "\n" +
+                    " TailTrig : " + this.grndMan.TailTrigg + "\n" +
+                    " RWheels : " + this.grndMan.RLWheel + " " + this.grndMan.RRWheel + "\n" + "\n" +
+                    " CrntState : " + SXLH.CrntState + "\n" + "\n" +
+                    " Stance : " + (SXLH.IsReg ? "Regular" : "Goofy") + "\n" +
+                    " CrntGrind : " + this.grndMan.CrntGrind + "\n" +
+                    " SideEntr : " + this.grndMan.GrndSide + "\n" +
+                    " GrndMetal : " + this.grndMan.MetalGrnd + "\n" +
+                    " FrntSide : " + SXLH.FrntSide + "\n" +
+                    " BackSide : " + SXLH.BackSide + "\n" +
+                    " SideStrt : " + this.grndMan.SideStrt + "\n" +
+                    " SameSide : " + this.grndMan.SameSide + "\n" +
+                    " ToeFwd : " + this.grndMan.ToeFwd + "\n" +
+                    " IsSwitch : " + SXLH.IsSwitch + "\n" +
+                    " IsBrdFwd : " + SXLH.IsBrdFwd + "\n" + "\n" +
+                    " LeftFrnt : " + this.plyrInfo.LeftFrnt + "\n" +
+                    " LeftPop : " + SXLH.LeftPop + "\n" + "\n" +
+                    " RightFrnt : " + this.plyrInfo.RightFrnt + "\n" +
+                    " RightPop : " + SXLH.RightPop + "\n" + "\n" +
+                    " GetPrefix : " + this.plyrInfo.GetPrefix(SXLH.CrntState) + "\n" + "\n" +
+                    " MoveMaster : " + PlayerController.Instance.movementMaster.ToString() + "\n" +
                     ""
                 );
 

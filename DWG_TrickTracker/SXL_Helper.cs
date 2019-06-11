@@ -49,8 +49,8 @@ namespace DWG_TT
         static public Vector3 BrdUp { get { return PlayerController.Instance.boardController.boardTransform.up; } }
         static public Vector3 BrdTargPos { get { return PlayerController.Instance.boardController.boardTargetPosition.position; } }
 
-        static public bool FlipTrigs { get { return ((!SXLH.IsSwitch && SXLH.IsBrdFwd) || (SXLH.IsSwitch && !SXLH.IsBrdFwd)); } }
-        static public Vector3 BrdDirTwk { get { return FlipTrigs ? BrdFwd : -BrdFwd; } }
+        static public bool NoSwap { get { return ((!IsSwitch && IsBrdFwd) || (IsSwitch && !IsBrdFwd)); } }
+        static public Vector3 BrdDirTwk { get { return NoSwap ? BrdFwd : -BrdFwd; } }
         static public Vector3 BrdEdgeFwd { get { return (IsBrdFwd && IsReg || !IsBrdFwd && IsGoofy ? BrdFwd : -BrdFwd); } }
 
         // Don't call any these if character is not grinding
@@ -71,19 +71,13 @@ namespace DWG_TT
         static public Vector3 GrindDir { get { return PlayerController.Instance.boardController.triggerManager.grindDirection; } }
         static public Vector3 GrindUp { get { return PlayerController.Instance.boardController.triggerManager.grindUp; } }
 
-        static public float GrindSplLngt
+        static public float GrindLngt
         {
             get
             {
                 Dreamteck.Splines.SplinePoint[] splnPnts = PlayerController.Instance.boardController.triggerManager.spline.GetPoints();
                 return Vector3.Distance(splnPnts[0].position, splnPnts[(splnPnts.Length - 1)].position);
             }
-        }
-
-        static public bool NearEndGrind(Vector3 p_brdPos)
-        {
-            Dreamteck.Splines.SplinePoint[] splnPnts = PlayerController.Instance.boardController.triggerManager.spline.GetPoints();
-            return (((Vector3.Distance(splnPnts[0].position, p_brdPos) * 100) < 30) || ((Vector3.Distance(splnPnts[(splnPnts.Length - 1)].position, p_brdPos) * 100) < 30));
         }
     }
 }

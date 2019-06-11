@@ -9,7 +9,7 @@ namespace DWG_TT
 {
     static class DebugOut
     {
-        static private readonly bool debugMe = true;
+        static private readonly bool debugMe = false;
         static private string debugTitle = "DebugOut";
         static public void SetTitle(string p_newTitle) { debugTitle = p_newTitle; }
         static public void Log(string p_dbgStr) { if (!debugMe) { return; }; Debug.Log("<-DWG-> " + debugTitle + " - " + p_dbgStr + " <-DWG->"); }

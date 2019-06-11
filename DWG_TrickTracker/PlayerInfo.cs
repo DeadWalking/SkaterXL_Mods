@@ -52,6 +52,7 @@ namespace DWG_TT
         private string lastMan = "";
         private float manWait = 0.35f;
 
+        PlayerState_InAir pStateAir;
         void OnEnable()
         {
             //DebugOut.Log(this.GetType().Name + " OnEnable");
@@ -110,6 +111,7 @@ namespace DWG_TT
                     case SXLH.Released:
                     case SXLH.InAir:
                         if (SXLH.CrntState == SXLH.BeginPop) {
+                            //this.ResetRots();
                             //this.guiTrck.TrackedTime = chkTime;
                             // Needs some work I've run across some logic in dnSpy that should aid in NoComply detection. Might require a Harmony_Patch
                             //if ((chkTime - ftDwnTime) <= 0.1f) { this.guiMan.AddTrick("NoComply"); };
@@ -117,7 +119,7 @@ namespace DWG_TT
 
                         if (SXLH.CrntState == SXLH.Pop || SXLH.CrntState == SXLH.Released || SXLH.CrntState == SXLH.InAir)
                         {
-                            //if (SXLH.CrntState == SXLH.Pop) { this.guiTrck.TrackedTime = chkTime; }
+                            if (SXLH.CrntState == SXLH.Pop) { this.ResetRots();/* this.guiTrck.TrackedTime = chkTime;*/ }
 
                             //Needs trajectory or at least velocity
                             //if (BrdPos.y < (brdPosLast.y - ((brdPosLast.y - BrdPos.y)/0.75f)))
@@ -130,13 +132,16 @@ namespace DWG_TT
 
                         switch (this.lastState)
                         {
+                            //case SXLH.BeginPop:
+                            //case SXLH.Pop:
                             case SXLH.Riding:
                             case SXLH.Impact:
                             case SXLH.Pushing:
                             case SXLH.Setup:
                             case SXLH.Manualling:
                             case SXLH.Grinding:
-                                this.ResetRots();
+                                if (SXLH.CrntState == SXLH.InAir) { this.ResetRots(); }
+                                //this.ResetRots();
                                 break;
                         };
                         break;
@@ -147,7 +152,6 @@ namespace DWG_TT
                     case SXLH.Pushing:
                         // Need to build checks for Mongo, should be able to grab a variable from PlayerController
                     case SXLH.Braking:
-                        //this.ResetRots();
                         break;
                 };
                 this.lastState = SXLH.CrntState;
@@ -368,20 +372,20 @@ namespace DWG_TT
             int clampBFlip = this.ClampRot(true, this.brdFlip, brdFlipMaxOffset);
             int clampBFlipMax = this.ClampRot(true, this.brdFlipMax, brdFlipMaxOffset);
 
-            //DebugOut.Log
-            //(
-            //    "\n\n\n" +
-            //    "IsBrdFwd = " + SXLH.IsBrdFwd + " : IsSwitch = " + SXLH.IsSwitch + "\n" +
-            //    "sktrRotMax = " + this.sktrRotMax + " : this.sktrRot = " + this.sktrRot + "\n" +
-            //    "brdRotMax = " + this.brdRotMax + " : this.brdRot = " + this.brdRot + "\n" +
-            //    "brdFlipMax = " + this.brdFlipMax + " : this.brdFlip = " + this.brdFlip + "\n\n" +
-            //    "clampSRotMax = " + clampSRotMax + " : clampSRot = " + clampSRot + "\n" +
-            //    "clampBRotMax = " + clampBRotMax + " : clampBRot = " + clampBRot + "\n" +
-            //    "clampBFlipMax = " + clampBFlipMax + " : clampBFlip = " + clampBFlip + "\n\n\n" +
-            //    "forced this should be 180? (clampBFlipMax % 360) = " + (clampBFlipMax % 360) + "\n" +
-            //    "impcaspFlip = ((clampBFlipMax == 0) && (Mathf.Abs(this.brdFlipMax) > 90f)) = " + ((clampBFlipMax == 0) && (Mathf.Abs(this.brdFlipMax) > 90f)) + "\n" +
-            //    "\n\n\n"
-            //);
+            DebugOut.Log
+            (
+                "\n\n\n" +
+                "IsBrdFwd = " + SXLH.IsBrdFwd + " : IsSwitch = " + SXLH.IsSwitch + "\n" +
+                "sktrRotMax = " + this.sktrRotMax + " : this.sktrRot = " + this.sktrRot + "\n" +
+                "brdRotMax = " + this.brdRotMax + " : this.brdRot = " + this.brdRot + "\n" +
+                "brdFlipMax = " + this.brdFlipMax + " : this.brdFlip = " + this.brdFlip + "\n\n" +
+                "clampSRotMax = " + clampSRotMax + " : clampSRot = " + clampSRot + "\n" +
+                "clampBRotMax = " + clampBRotMax + " : clampBRot = " + clampBRot + "\n" +
+                "clampBFlipMax = " + clampBFlipMax + " : clampBFlip = " + clampBFlip + "\n\n\n" +
+                "forced this should be 180? (clampBFlipMax % 360) = " + (clampBFlipMax % 360) + "\n" +
+                "impcaspFlip = ((clampBFlipMax == 0) && (Mathf.Abs(this.brdFlipMax) > 90f)) = " + ((clampBFlipMax == 0) && (Mathf.Abs(this.brdFlipMax) > 90f)) + "\n" +
+                "\n\n\n"
+            );
 
             string trickPrefix = this.GetPrefix(SXLH.InAir);
 
@@ -497,7 +501,6 @@ namespace DWG_TT
                 }
                 else
                 {
-                    // bs spin fs bvar kickflip Ghetto bird
                     if (didFlip && clampSRotMax == 180)
                     {
                         if (clampBRotMax == 0)
@@ -568,7 +571,7 @@ namespace DWG_TT
             }
             else if (didShuv && !didFlip)
             {
-                flipOut = (!skpBrdRot ? (clampBRotMax >= 360 ? clampBRotMax.ToString() + " " : "") + ((!sameDir || clampSRotMax != clampBRotMax) ? "Shove It" : ""): "");
+                flipOut = (!skpBrdRot ? (clampBRotMax >= 360 || (clampBRotMax >= 180 && sameDir && clampSRotMax == clampBRotMax) ? clampBRotMax.ToString() + " " : "") + ((!sameDir || clampSRotMax != clampBRotMax) ? "Shove It" : ""): "");
             }
             else if (didShuv && didFlip)
             {
@@ -602,7 +605,7 @@ namespace DWG_TT
                 }
                 else
                 {
-                    flipOut = (!skpBrdRot ? (clampBRotMax >= 360? clampBRotMax.ToString() + " " : "") + ((!sameDir || clampSRotMax != clampBRotMax) ? "Shove It" : "") + (flipType.Length > 0 ? " " : ""): "") + dtqFlip + flipType;
+                    flipOut = (!skpBrdRot ? (clampBRotMax >= 360 || (clampBRotMax >= 180 && sameDir && clampSRotMax == clampBRotMax) ? clampBRotMax.ToString() + " " : "") + ((!sameDir || clampSRotMax != clampBRotMax) ? "Shove It" : "") + (flipType.Length > 0 ? " " : ""): "") + dtqFlip + flipType;
                     //if (Main.settings.skp_Erron)
                     //{
                     //    skpBrdRot = true;
@@ -618,7 +621,7 @@ namespace DWG_TT
                 this.guiTrck.AddTrick(trickPrefix + trckOut);
             }
 
-            //if (!Main.settings.con_Enable) { this.ResetRots(); }
+            this.ResetRots();
         }
     }
 }

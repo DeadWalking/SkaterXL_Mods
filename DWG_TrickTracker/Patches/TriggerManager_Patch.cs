@@ -18,6 +18,21 @@ namespace DWG_TT
         }
     }
 
+    //[HarmonyPatch(typeof(PlayerState_InAir), "Update")]
+    //static public class PStateAir
+    //{
+    //    public static bool LeftOff { get ; private set; }
+    //    public static bool RightOff { get; private set; }
+
+    //    [HarmonyPriority(999)]
+    //    static void Postfix(PlayerState_InAir __instance, ref bool ____caughtLeft, ref bool ____caughtRight)
+    //    {
+    //        if (!Main.settings.do_TrackTricks) { return; };
+    //        LeftOff = ____caughtLeft;
+    //        RightOff = ____caughtRight;
+    //    }
+    //}
+
     [HarmonyPatch(typeof(GrindTrigger), "OnTriggerEnter")]
     static public class GrndTrigEnter
     {
