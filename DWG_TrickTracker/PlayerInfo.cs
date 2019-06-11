@@ -64,7 +64,7 @@ namespace DWG_TT
             //DebugOut.Log(this.GetType().Name + " PlayerInfo Reset:" + p_sender);
         }
 
-        void LateUpdate()
+        void FixedUpdate()
         {
             if (!Main.enabled || !Main.settings.do_TrackTricks) { return; };
             if (this.guiMan == null)
@@ -85,6 +85,7 @@ namespace DWG_TT
 
             if (this.lastState != SXLH.CrntState)
             {
+                DebugOut.Log("State Changed to : " + SXLH.CrntState + "\n");
                 //DebugOut.Log("\n" +
                 //    "State Changed to : " + SXLH.CrntState + "\n" +
                 //    "IsBrdFwd = " + SXLH.IsBrdFwd + "\n" +
@@ -111,7 +112,7 @@ namespace DWG_TT
                     case SXLH.Released:
                     case SXLH.InAir:
                         if (SXLH.CrntState == SXLH.BeginPop) {
-                            //this.ResetRots();
+                            this.ResetRots();
                             //this.guiTrck.TrackedTime = chkTime;
                             // Needs some work I've run across some logic in dnSpy that should aid in NoComply detection. Might require a Harmony_Patch
                             //if ((chkTime - ftDwnTime) <= 0.1f) { this.guiMan.AddTrick("NoComply"); };
@@ -119,7 +120,7 @@ namespace DWG_TT
 
                         if (SXLH.CrntState == SXLH.Pop || SXLH.CrntState == SXLH.Released || SXLH.CrntState == SXLH.InAir)
                         {
-                            if (SXLH.CrntState == SXLH.Pop) { this.ResetRots();/* this.guiTrck.TrackedTime = chkTime;*/ }
+                            //if (SXLH.CrntState == SXLH.Pop) { this.ResetRots();/* this.guiTrck.TrackedTime = chkTime;*/ }
 
                             //Needs trajectory or at least velocity
                             //if (BrdPos.y < (brdPosLast.y - ((brdPosLast.y - BrdPos.y)/0.75f)))
@@ -372,20 +373,20 @@ namespace DWG_TT
             int clampBFlip = this.ClampRot(true, this.brdFlip, brdFlipMaxOffset);
             int clampBFlipMax = this.ClampRot(true, this.brdFlipMax, brdFlipMaxOffset);
 
-            DebugOut.Log
-            (
-                "\n\n\n" +
-                "IsBrdFwd = " + SXLH.IsBrdFwd + " : IsSwitch = " + SXLH.IsSwitch + "\n" +
-                "sktrRotMax = " + this.sktrRotMax + " : this.sktrRot = " + this.sktrRot + "\n" +
-                "brdRotMax = " + this.brdRotMax + " : this.brdRot = " + this.brdRot + "\n" +
-                "brdFlipMax = " + this.brdFlipMax + " : this.brdFlip = " + this.brdFlip + "\n\n" +
-                "clampSRotMax = " + clampSRotMax + " : clampSRot = " + clampSRot + "\n" +
-                "clampBRotMax = " + clampBRotMax + " : clampBRot = " + clampBRot + "\n" +
-                "clampBFlipMax = " + clampBFlipMax + " : clampBFlip = " + clampBFlip + "\n\n\n" +
-                "forced this should be 180? (clampBFlipMax % 360) = " + (clampBFlipMax % 360) + "\n" +
-                "impcaspFlip = ((clampBFlipMax == 0) && (Mathf.Abs(this.brdFlipMax) > 90f)) = " + ((clampBFlipMax == 0) && (Mathf.Abs(this.brdFlipMax) > 90f)) + "\n" +
-                "\n\n\n"
-            );
+            //DebugOut.Log
+            //(
+            //    "\n\n\n" +
+            //    "IsBrdFwd = " + SXLH.IsBrdFwd + " : IsSwitch = " + SXLH.IsSwitch + "\n" +
+            //    "sktrRotMax = " + this.sktrRotMax + " : this.sktrRot = " + this.sktrRot + "\n" +
+            //    "brdRotMax = " + this.brdRotMax + " : this.brdRot = " + this.brdRot + "\n" +
+            //    "brdFlipMax = " + this.brdFlipMax + " : this.brdFlip = " + this.brdFlip + "\n\n" +
+            //    "clampSRotMax = " + clampSRotMax + " : clampSRot = " + clampSRot + "\n" +
+            //    "clampBRotMax = " + clampBRotMax + " : clampBRot = " + clampBRot + "\n" +
+            //    "clampBFlipMax = " + clampBFlipMax + " : clampBFlip = " + clampBFlip + "\n\n\n" +
+            //    "forced this should be 180? (clampBFlipMax % 360) = " + (clampBFlipMax % 360) + "\n" +
+            //    "impcaspFlip = ((clampBFlipMax == 0) && (Mathf.Abs(this.brdFlipMax) > 90f)) = " + ((clampBFlipMax == 0) && (Mathf.Abs(this.brdFlipMax) > 90f)) + "\n" +
+            //    "\n\n\n"
+            //);
 
             string trickPrefix = this.GetPrefix(SXLH.InAir);
 

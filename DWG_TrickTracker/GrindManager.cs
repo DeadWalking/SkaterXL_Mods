@@ -91,7 +91,7 @@ namespace DWG_TT
             //DebugOut.Log(this.GetType().Name + " OnDestroy");
         }
 
-        public void LateUpdate()
+        public void FixedUpdate()
         {
             if (!Main.enabled || !Main.settings.do_TrackTricks) { return; }
 
@@ -170,7 +170,7 @@ namespace DWG_TT
 
                 if (this.GrindLngt == 0f && this.GrndLeft != 0f) { this.GrindLngt = this.GrndLeft; }
 
-                this.SpdAdjst = Mathf.Clamp((((this.GrindLngt - 6f) / 100) / (brdSpeed * this.speedMulti)), 0.25f, 2f);
+                this.SpdAdjst = Mathf.Clamp((((this.GrindLngt - 6f) / 100) / (brdSpeed * this.speedMulti)), 0.25f, 1.0f);
 
                 if (SXLH.BrdSpeed < 0.8f && SXLH.BrdSpeed > 0.2f) {
                     bool didStall = false;
@@ -191,8 +191,9 @@ namespace DWG_TT
                             if (this.lastGrind == this.CrntGrind && !this.allGrnds.Contains(this.CrntGrind))
                             {
                                 this.allGrnds.Add(this.CrntGrind);
-                                this.guiTrck.AddTrick((/*this.CrntGrind.Contains("Grind Stall") ? "" : */(SXLH.IsSwitch ? "Switch " : "") + (SXLH.FrntSide ? "Fs " : "Bs ")) + this.CrntGrind);
+                                this.guiTrck.AddTrick(((SXLH.IsSwitch ? "Switch " : "") + (SXLH.FrntSide ? "Fs " : "Bs ")) + this.CrntGrind);
                                 this.grndTime = chkTime + Time.deltaTime;
+                                this.GrindLngt = this.GrndLeft;
                             }
                         }
                         this.lastGrind = this.CrntGrind;
@@ -320,8 +321,8 @@ namespace DWG_TT
             if (heightDiff <= 33) { crntUpAngl *= -1; }
 
 
-            bool angleGrndMinDist = (Math.Abs(distX + distZ) >= 100); // (distX >= 100 || distZ >= 100);
-            bool brdSlideMaxDist = (Math.Abs(distX - distZ) <= 155); //(distX <= 150 && distZ  <= 150);
+            bool angleGrndMinDist = (Math.Abs(distX + distZ) >= 75);
+            bool brdSlideMaxDist = (Math.Abs(distX - distZ) <= 155);
             bool isSameSide = (dotProd >= 0 && this.SideStrt >= 0) || (dotProd < 0 && this.SideStrt < 0);
             bool toeIsFwd = Vector3.SignedAngle(Vector3.ProjectOnPlane(SXLH.BrdEdgeFwd, SXLH.GrindUp), SXLH.GrindDir, SXLH.GrindUp) >= 0;
             if (SXLH.IsGoofy) { toeIsFwd = !toeIsFwd; }
@@ -348,11 +349,11 @@ namespace DWG_TT
                 this.SameSide = isSameSide;
             }
 
-            bool highGrnd = (crntUpAngl >= 14);
-            bool lowGrnd = (crntUpAngl <= 0);
-            bool exLowGrnd = (crntUpAngl < -25);
+            bool highGrnd = (crntUpAngl >= 5);
+            bool lowGrnd = (crntUpAngl < 5);
+            bool exLowGrnd = (crntUpAngl < -15);
 
-            bool canBrdLipSlide = (this.BrdTrigg && !this.NoseTrigg && !this.TailTrigg && brdSlideMaxDist && heightDiff <= -40);
+            bool canBrdLipSlide = (this.BrdTrigg && !this.NoseTrigg && !this.TailTrigg && brdSlideMaxDist);
 
             bool canBluntSlide = ((this.NoseTrigg && this.FrntTrckTrigg && !this.BckTrckTrigg && !this.TailTrigg) ||
                                   (!this.NoseTrigg && !this.FrntTrckTrigg && this.BckTrckTrigg && this.TailTrigg) ||
@@ -374,10 +375,6 @@ namespace DWG_TT
             // Bs Small Neg Over/Losi  Suski/Smith  HeelFwd
             // Bs Small Pos Crook/Lazy Salad/Feeble ToeFwd
 
-
-            // Minimum heightDiff Up Angle Grind 60
-            // Maxmimum heightDiff Dwn Angle Grind 20
-
             // Fs ToeFwd
             // OverCrook Suski Smith Losi
             // Fs HeelFwd
@@ -398,12 +395,12 @@ namespace DWG_TT
             // Bs RL Suski/Salad
             // Bs RR Crook/OverCrook
 
-            bool fiftyfiftyRange = ((crntFwdAngleAbs <= 10) && (heightDiff >= 3) && (heightDiff <= 33));
-            bool enterRange = (crntFwdAngleAbs <= 20);
-            bool smallRange = ((crntFwdAngleAbs >= 25) && (crntFwdAngleAbs <= 60));
-            bool perpRange = ((crntFwdAngleAbs >= 65) && (crntFwdAngleAbs <= 115));
-            bool largeRange = ((crntFwdAngleAbs >= 120) && (crntFwdAngleAbs <= 155));
-            bool exitRange = (crntFwdAngleAbs >= 160);
+            bool fiftyfiftyRange = ((crntFwdAngleAbs <= 10) && (heightDiff >= 0) && (heightDiff <= 33));
+            bool enterRange = (crntFwdAngleAbs < 20);
+            bool smallRange = ((crntFwdAngleAbs >= 20) && (crntFwdAngleAbs <= 60));
+            bool perpRange = ((crntFwdAngleAbs > 60) && (crntFwdAngleAbs < 120));
+            bool largeRange = ((crntFwdAngleAbs >= 120) && (crntFwdAngleAbs <= 160));
+            bool exitRange = (crntFwdAngleAbs > 160);
             // crntFwdAngle NoseTrigg Samll Pos is Right hand side of grind
             // crntFwdAngle NoseTrigg Small Neg is Left hand side of grind
             // crntFwdAngle TailTrigg Samll Neg is Right hand side of grind
@@ -423,11 +420,11 @@ namespace DWG_TT
                 {
                     if (this.NoneDown())
                     {
-                        if (canBrdLipSlide)
+                        if (canBrdLipSlide && (heightDiff <= -40))
                         {
                             return ("Boardslide");
                         }
-                        else if (canBrdLipSlide && (this.FrntTrckTrigg || this.BckTrckTrigg))
+                        else if (canBrdLipSlide && (heightDiff <= -40) && (this.FrntTrckTrigg || this.BckTrckTrigg))
                         {
                             return (exLowGrnd ? "Anchor" : "Boardslide");
                         }
